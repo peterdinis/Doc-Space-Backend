@@ -1,13 +1,13 @@
 import {
   WebSocketGateway,
-  WebSocketServer,
   SubscribeMessage,
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -17,41 +17,35 @@ import { Logger } from '@nestjs/common';
 export class DocumentGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  @WebSocketServer()
-  server: Server;
-
-  private logger: Logger = new Logger('DocumentGateway');
+  private server: Server;
 
   afterInit(server: Server) {
-    this.logger.log('WebSocket Gateway Initialized');
+    this.server = server;
+    console.log('WebSocket Initialized');
   }
 
   handleConnection(client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`);
+    console.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
-  }
-
-  // Example: Handle document updates
-  @SubscribeMessage('document-update')
-  handleDocumentUpdate(client: Socket, payload: any): void {
-    const { documentId, content } = payload;
-
-    // Broadcast to all clients in the same document room
-    client.to(documentId).emit('document-update', content);
+    console.log(`Client disconnected: ${client.id}`);
   }
 
   @SubscribeMessage('join-document')
-  handleJoinDocument(client: Socket, payload: { documentId: string }) {
-    client.join(payload.documentId);
-    this.logger.log(`Client ${client.id} joined room: ${payload.documentId}`);
+  handleJoinDoc(@MessageBody() docId: string, @ConnectedSocket() client: Socket) {
+    client.join(docId);
+    client.to(docId).emit('user-joined', client.id);
   }
 
   @SubscribeMessage('leave-document')
-  handleLeaveDocument(client: Socket, payload: { documentId: string }) {
-    client.leave(payload.documentId);
-    this.logger.log(`Client ${client.id} left room: ${payload.documentId}`);
+  handleLeaveDoc(@MessageBody() docId: string, @ConnectedSocket() client: Socket) {
+    client.leave(docId);
+    client.to(docId).emit('user-left', client.id);
+  }
+
+  @SubscribeMessage('document-typing')
+  handleTyping(@MessageBody() data: { docId: string; content: string }, @ConnectedSocket() client: Socket) {
+    client.to(data.docId).emit('document-update', { content: data.content, user: client.id });
   }
 }
