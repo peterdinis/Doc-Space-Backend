@@ -106,4 +106,46 @@ export class DocumentService {
             message: `${deleted.count} document(s) deleted`,
         };
     }
+
+    async moveToTrash(id: string, userId: string) {
+  await this.findOne(id, userId);
+  return this.prisma.document.update({
+    where: { id },
+    data: { inTrash: true },
+  });
+}
+
+async restoreFromTrash(id: string, userId: string) {
+  const doc = await this.findOne(id, userId);
+  if (!doc.inTrash) {
+    throw new BadRequestException('Document is not in trash');
+  }
+  return this.prisma.document.update({
+    where: { id },
+    data: { inTrash: false },
+  });
+}
+
+async getTrashed(userId: string) {
+  return this.prisma.document.findMany({
+    where: {
+      ownerId: userId,
+      inTrash: true,
+    },
+    orderBy: { updatedAt: 'desc' },
+  });
+}
+
+async emptyTrash(userId: string) {
+  const deleted = await this.prisma.document.deleteMany({
+    where: {
+      ownerId: userId,
+      inTrash: true,
+    },
+  });
+
+  return {
+    message: `${deleted.count} trashed document(s) permanently deleted.`,
+  };
+}
 }
