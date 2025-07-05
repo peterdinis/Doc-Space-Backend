@@ -1,15 +1,23 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { QueryDocumentDto } from './dto/query-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
-
 
 @Injectable()
 export class DocumentService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateDocumentDto, userId: string) {
+    if (!dto.title || dto.title.trim() === '') {
+      throw new BadRequestException('Title is required');
+    }
+
     return this.prisma.document.create({
       data: {
         ...dto,
@@ -19,7 +27,7 @@ export class DocumentService {
   }
 
   async findAll(query: QueryDocumentDto, userId: string) {
-    const { search, page = 1, limit = 10 } = query;
+    const { search, status, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     const where = {
@@ -30,6 +38,7 @@ export class DocumentService {
           mode: 'insensitive',
         },
       }),
+      ...(status && { status }),
     };
 
     const [documents, total] = await this.prisma.$transaction([
@@ -60,14 +69,19 @@ export class DocumentService {
     }
 
     if (document.ownerId !== userId) {
-      throw new ForbiddenException('You do not have access to this document');
+      throw new ForbiddenException('You do not have permission to view this document');
     }
 
     return document;
   }
 
   async update(id: string, dto: UpdateDocumentDto, userId: string) {
-    await this.findOne(id, userId); // Ownership check
+    const document = await this.findOne(id, userId);
+
+    if (dto.title?.trim() === '') {
+      throw new BadRequestException('Title cannot be empty');
+    }
+
     return this.prisma.document.update({
       where: { id },
       data: dto,
@@ -75,7 +89,7 @@ export class DocumentService {
   }
 
   async remove(id: string, userId: string) {
-    await this.findOne(id, userId); // Ownership check
+    await this.findOne(id, userId); // Ensures only owner can delete
     return this.prisma.document.delete({
       where: { id },
     });
