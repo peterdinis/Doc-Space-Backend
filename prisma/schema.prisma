@@ -18,6 +18,7 @@ model User {
   id          String           @id @default(cuid())
   email       String           @unique
   name        String?
+  password    String
   documents   Document[]       @relation("UserDocuments")
   shared      SharedDocument[] @relation("SharedWithUser")
   connectionsSent     Connection[] @relation("ConnectionsSent")
