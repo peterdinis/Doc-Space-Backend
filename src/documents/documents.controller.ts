@@ -1,0 +1,82 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  Req,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+  ParseUUIDPipe,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiParam,
+} from '@nestjs/swagger';
+import { DocumentService } from './documents.service';
+import { CreateDocumentDto } from './dto/create-document.dto';
+import { QueryDocumentDto } from './dto/query-document.dto';
+import { UpdateDocumentDto } from './dto/update-document.dto';
+
+@Controller('documents')
+@ApiTags('Documents')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+export class DocumentController {
+  constructor(private readonly documentService: DocumentService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Create a new document' })
+  @ApiResponse({ status: 201, description: 'Document created' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  create(@Body() dto: CreateDocumentDto, @Req() req) {
+    return this.documentService.create(dto, req.user.id);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get paginated list of user documents' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiResponse({ status: 200, description: 'Paginated list of documents' })
+  findAll(@Query() query: QueryDocumentDto, @Req() req) {
+    return this.documentService.findAll(query, req.user.id);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a document by ID' })
+  @ApiParam({ name: 'id', type: String, description: 'Document UUID' })
+  @ApiResponse({ status: 200, description: 'Document found' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
+    return this.documentService.findOne(id, req.user.id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a document by ID' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Document updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateDocumentDto, @Req() req) {
+    return this.documentService.update(id, dto, req.user.id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a document by ID' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Document deleted' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  remove(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
+    return this.documentService.remove(id, req.user.id);
+  }
+}
