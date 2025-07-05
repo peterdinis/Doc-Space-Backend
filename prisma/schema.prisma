@@ -10,6 +10,69 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String           @id @default(cuid())
+  email       String           @unique
+  name        String?
+  documents   Document[]       @relation("UserDocuments")
+  shared      SharedDocument[] @relation("SharedWithUser")
+  connectionsSent     Connection[] @relation("ConnectionsSent")
+  connectionsReceived Connection[] @relation("ConnectionsReceived")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+}
+
+model Document {
+  id          String           @id @default(cuid())
+  title       String
+  content     String?
+  ownerId     String
+  owner       User             @relation("UserDocuments", fields: [ownerId], references: [id])
+  sharedWith  SharedDocument[] @relation("SharedDocumentsOnDocument")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model SharedDocument {
+  id          String      @id @default(cuid())
+  documentId  String
+  userId      String
+  accessLevel AccessLevel @default(VIEW)
+  sharedAt    DateTime    @default(now())
+
+  document Document @relation("SharedDocumentsOnDocument", fields: [documentId], references: [id])
+  user     User     @relation("SharedWithUser", fields: [userId], references: [id])
+
+  @@unique([documentId, userId])
+}
+
+model Connection {
+  id          String      @id @default(cuid())
+  requesterId String
+  receiverId  String
+  status      ConnectionStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+
+  requester User @relation("ConnectionsSent", fields: [requesterId], references: [id])
+  receiver  User @relation("ConnectionsReceived", fields: [receiverId], references: [id])
+
+  @@unique([requesterId, receiverId]) 
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  BLOCKED
+}
+
+enum AccessLevel {
+  VIEW
+  EDIT
+  COMMENT
 }
