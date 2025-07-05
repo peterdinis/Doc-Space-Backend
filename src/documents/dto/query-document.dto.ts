@@ -1,4 +1,5 @@
-import { IsOptional, IsString, IsNumber, Min } from 'class-validator';
+import { IsOptional, IsString, IsEnum } from 'class-validator';
+import { DocumentStatus } from 'generated/prisma';
 
 export class QueryDocumentDto {
   @IsOptional()
@@ -6,12 +7,12 @@ export class QueryDocumentDto {
   search?: string;
 
   @IsOptional()
-  @IsNumber()
-  @Min(1)
+  @IsEnum(DocumentStatus)
+  status?: DocumentStatus;
+
+  @IsOptional()
   page?: number;
 
   @IsOptional()
-  @IsNumber()
-  @Min(1)
   limit?: number;
 }
