@@ -15,7 +15,9 @@ import { DocumentService } from './documents.service';
     origin: '*', // Adjust for your client URL in prod
   },
 })
-export class DocumentGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class DocumentGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -85,7 +87,11 @@ export class DocumentGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     // Optionally, you can debounce or throttle saving to DB here
     // For demo: save immediately (can add try/catch)
-    await this.documentService.update(data.documentId, { content: data.content }, data.userId);
+    await this.documentService.update(
+      data.documentId,
+      { content: data.content },
+      data.userId,
+    );
 
     // Broadcast change to others in room except sender
     client.to(data.documentId).emit('documentUpdated', {
