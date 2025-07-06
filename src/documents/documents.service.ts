@@ -69,7 +69,9 @@ export class DocumentService {
     }
 
     if (document.ownerId !== userId) {
-      throw new ForbiddenException('You do not have permission to view this document');
+      throw new ForbiddenException(
+        'You do not have permission to view this document',
+      );
     }
 
     return document;

@@ -8,6 +8,6 @@ import { DocumentStatus } from 'generated/prisma';
 @Module({
   imports: [PrismaModule],
   providers: [DocumentService],
-  controllers: [DocumentController]
+  controllers: [DocumentController],
 })
 export class DocumentModule {}

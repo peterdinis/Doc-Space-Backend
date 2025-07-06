@@ -10,9 +10,16 @@ import { ConnectionsModule } from 'src/connections/connections.module';
 import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, DocumentModule, MailModule, ConnectionsModule, SharedDocumentsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UserModule,
+    DocumentModule,
+    MailModule,
+    ConnectionsModule,
+    SharedDocumentsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
-;
+export class AppModule {}

@@ -1,7 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsInt, Min } from 'class-validator';
 
-
 export class QueryDocumentDto {
   @ApiPropertyOptional()
   @IsOptional()
