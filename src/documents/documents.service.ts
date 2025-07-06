@@ -18,114 +18,28 @@ export class DocumentService {
       throw new BadRequestException('Title is required');
     }
 
-    async findAll(query: QueryDocumentDto, userId: string) {
-        const { search, page = 1, limit = 10 } = query;
-        const skip = (page - 1) * limit;
-
-        const where = {
-            ownerId: userId,
-            ...(search && {
-                title: {
-                    contains: search,
-                    mode: 'insensitive',
-                },
-            }),
-        };
-
-        const [documents, total] = await this.prisma.$transaction([
-            this.prisma.document.findMany({
-                where,
-                orderBy: { createdAt: 'desc' },
-                skip,
-                take: limit,
-            }),
-            this.prisma.document.count({ where }),
-        ]);
-
-        return {
-            data: documents,
-            total,
-            page,
-            totalPages: Math.ceil(total / limit),
-        };
-    }
-
-    async findOne(id: string, userId: string) {
-        const document = await this.prisma.document.findUnique({
-            where: { id },
-        });
-
-        if (!document) {
-            throw new NotFoundException('Document not found');
-        }
-
-        if (document.ownerId !== userId) {
-            throw new ForbiddenException('You do not have permission to view this document');
-        }
-
-        return document;
-    }
-
-    async update(id: string, dto: UpdateDocumentDto, userId: string) {
-        const document = await this.findOne(id, userId);
-
-        if (dto.title?.trim() === '') {
-            throw new BadRequestException('Title cannot be empty');
-        }
-
-        return this.prisma.document.update({
-            where: { id },
-            data: dto,
-        });
-    }
-
-    async remove(id: string, userId: string) {
-        await this.findOne(id, userId);
-        return this.prisma.document.delete({
-            where: { id },
-        });
-    }
-
-    async removeAll(userId: string) {
-        const deleted = await this.prisma.document.deleteMany({
-            where: {
-                ownerId: userId,
-            },
-        });
-
-        return {
-            message: `${deleted.count} document(s) deleted`,
-        };
-    }
-
-    async moveToTrash(id: string, userId: string) {
-  await this.findOne(id, userId);
-  return this.prisma.document.update({
-    where: { id },
-    data: { inTrash: true },
-  });
-}
-
-async restoreFromTrash(id: string, userId: string) {
-  const doc = await this.findOne(id, userId);
-  if (!doc.inTrash) {
-    throw new BadRequestException('Document is not in trash');
+    return this.prisma.document.create({
+      data: {
+        ...dto,
+        ownerId: userId,
+      },
+    });
   }
 
   async findAll(query: QueryDocumentDto, userId: string) {
-    const { search, status, page = 1, limit = 10 } = query;
+    const { search, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
-    const where = {
+    const where: any = {
       ownerId: userId,
-      ...(search && {
-        title: {
-          contains: search,
-          mode: 'insensitive',
-        },
-      }),
-      ...(status && { status }),
     };
+
+    if (search) {
+      where.title = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
 
     const [documents, total] = await this.prisma.$transaction([
       this.prisma.document.findMany({
@@ -155,16 +69,14 @@ async restoreFromTrash(id: string, userId: string) {
     }
 
     if (document.ownerId !== userId) {
-      throw new ForbiddenException(
-        'You do not have permission to view this document',
-      );
+      throw new ForbiddenException('You do not have permission to view this document');
     }
 
     return document;
   }
 
   async update(id: string, dto: UpdateDocumentDto, userId: string) {
-    const document = await this.findOne(id, userId);
+    await this.findOne(id, userId); // will throw if not authorized
 
     if (dto.title?.trim() === '') {
       throw new BadRequestException('Title cannot be empty');
@@ -177,7 +89,7 @@ async restoreFromTrash(id: string, userId: string) {
   }
 
   async remove(id: string, userId: string) {
-    await this.findOne(id, userId);
+    await this.findOne(id, userId); // will throw if not authorized
     return this.prisma.document.delete({
       where: { id },
     });
@@ -185,9 +97,7 @@ async restoreFromTrash(id: string, userId: string) {
 
   async removeAll(userId: string) {
     const deleted = await this.prisma.document.deleteMany({
-      where: {
-        ownerId: userId,
-      },
+      where: { ownerId: userId },
     });
 
     return {
@@ -205,9 +115,11 @@ async restoreFromTrash(id: string, userId: string) {
 
   async restoreFromTrash(id: string, userId: string) {
     const doc = await this.findOne(id, userId);
+
     if (!doc.inTrash) {
       throw new BadRequestException('Document is not in trash');
     }
+
     return this.prisma.document.update({
       where: { id },
       data: { inTrash: false },
