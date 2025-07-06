@@ -27,7 +27,7 @@ export class DocumentService {
     }
 
     async findAll(query: QueryDocumentDto, userId: string) {
-        const { search, status, page = 1, limit = 10 } = query;
+        const { search, page = 1, limit = 10 } = query;
         const skip = (page - 1) * limit;
 
         const where = {
@@ -38,7 +38,6 @@ export class DocumentService {
                     mode: 'insensitive',
                 },
             }),
-            ...(status && { status }),
         };
 
         const [documents, total] = await this.prisma.$transaction([
