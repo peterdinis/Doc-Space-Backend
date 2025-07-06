@@ -27,19 +27,19 @@ export class DocumentService {
   }
 
   async findAll(query: QueryDocumentDto, userId: string) {
-    const { search, status, page = 1, limit = 10 } = query;
+    const { search, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
-    const where = {
+    const where: any = {
       ownerId: userId,
-      ...(search && {
-        title: {
-          contains: search,
-          mode: 'insensitive',
-        },
-      }),
-      ...(status && { status }),
     };
+
+    if (search) {
+      where.title = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
 
     const [documents, total] = await this.prisma.$transaction([
       this.prisma.document.findMany({
@@ -78,7 +78,7 @@ export class DocumentService {
   }
 
   async update(id: string, dto: UpdateDocumentDto, userId: string) {
-    const document = await this.findOne(id, userId);
+    await this.findOne(id, userId); // will throw if not authorized
 
     if (dto.title?.trim() === '') {
       throw new BadRequestException('Title cannot be empty');
@@ -91,7 +91,7 @@ export class DocumentService {
   }
 
   async remove(id: string, userId: string) {
-    await this.findOne(id, userId);
+    await this.findOne(id, userId); // will throw if not authorized
     return this.prisma.document.delete({
       where: { id },
     });
@@ -99,9 +99,7 @@ export class DocumentService {
 
   async removeAll(userId: string) {
     const deleted = await this.prisma.document.deleteMany({
-      where: {
-        ownerId: userId,
-      },
+      where: { ownerId: userId },
     });
 
     return {
@@ -119,9 +117,11 @@ export class DocumentService {
 
   async restoreFromTrash(id: string, userId: string) {
     const doc = await this.findOne(id, userId);
+
     if (!doc.inTrash) {
       throw new BadRequestException('Document is not in trash');
     }
+
     return this.prisma.document.update({
       where: { id },
       data: { inTrash: false },
