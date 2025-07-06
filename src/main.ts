@@ -9,6 +9,7 @@ async function bootstrap() {
     .setTitle('Doc Space API')
     .setDescription('The API documentation for docs space project')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
