@@ -3,10 +3,11 @@ import { BadRequestException, ForbiddenException, NotFoundException } from '@nes
 import { faker } from '@faker-js/faker';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DocumentService } from '../documents.service';
+import { PrismaClient } from '@prisma/client';
 
 describe('DocumentService', () => {
   let service: DocumentService;
-  let prisma: PrismaService;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockUserId = faker.string.uuid();
   const mockDocId = faker.string.uuid();
@@ -21,20 +22,20 @@ describe('DocumentService', () => {
     updatedAt: new Date(),
   };
 
-  const prismaMock = {
-    document: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn(),
-      deleteMany: jest.fn(),
-    },
-    $transaction: jest.fn(),
-  };
-
   beforeEach(async () => {
+    const prismaMock: jest.Mocked<PrismaService> = {
+      document: {
+        create: jest.fn(),
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+        count: jest.fn(),
+        deleteMany: jest.fn() as jest.Mock, // Explicitly cast to Jest mock
+      },
+      $transaction: jest.fn(),
+    } as any; // Cast as any to allow partial mocks
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DocumentService,
@@ -46,9 +47,7 @@ describe('DocumentService', () => {
     }).compile();
 
     service = module.get<DocumentService>(DocumentService);
-    prisma = module.get<PrismaService>(PrismaService);
-
-    jest.clearAllMocks();
+    prisma = module.get(PrismaService);
   });
 
   describe('create', () => {
