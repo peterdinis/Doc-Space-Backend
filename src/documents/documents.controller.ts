@@ -113,7 +113,10 @@ export class DocumentController {
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Document deleted' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.documentService.remove(id, userId);
   }
 }
