@@ -11,9 +11,9 @@ import { UpdateDocumentDto } from './dto/update-document.dto';
 
 @Injectable()
 export class DocumentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  async create(dto: CreateDocumentDto, userId: string) {
+  async create(dto: CreateDocumentDto) {
     if (!dto.title || dto.title.trim() === '') {
       throw new BadRequestException('Title is required');
     }
@@ -21,7 +21,7 @@ export class DocumentService {
     return this.prisma.document.create({
       data: {
         ...dto,
-        ownerId: userId,
+        ownerId: dto.userId
       },
     });
   }

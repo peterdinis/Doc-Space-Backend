@@ -31,8 +31,8 @@ export class DocumentController {
   @ApiOperation({ summary: 'Create a new document' })
   @ApiResponse({ status: 201, description: 'Document created' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  create(@Body() dto: CreateDocumentDto, @CurrentUser('id') userId: string) {
-    return this.documentService.create(dto, userId);
+  create(@Body() dto: CreateDocumentDto) {
+    return this.documentService.create(dto);
   }
 
   @Get()
