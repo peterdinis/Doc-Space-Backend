@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,12 +22,14 @@ import { CreateDocumentDto } from './dto/create-document.dto';
 import { QueryDocumentDto } from './dto/query-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @ApiTags('Documents')
 @Controller('documents')
 export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create a new document' })
   @ApiResponse({ status: 201, description: 'Document created' })
@@ -35,6 +38,7 @@ export class DocumentController {
     return this.documentService.create(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({
     summary: 'Get paginated list of user documents (not in trash)',
@@ -47,6 +51,7 @@ export class DocumentController {
     return this.documentService.findAll(query, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('trash/all')
   @ApiOperation({ summary: 'Get all documents in trash' })
   @ApiResponse({ status: 200, description: 'List of trashed documents' })
@@ -54,6 +59,7 @@ export class DocumentController {
     return this.documentService.getTrashed(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':id/trash')
   @ApiOperation({ summary: 'Move document to trash' })
   @ApiParam({ name: 'id', type: String })
@@ -65,6 +71,7 @@ export class DocumentController {
     return this.documentService.moveToTrash(id, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':id/restore')
   @ApiOperation({ summary: 'Restore document from trash' })
   @ApiParam({ name: 'id', type: String })
@@ -76,6 +83,7 @@ export class DocumentController {
     return this.documentService.restoreFromTrash(id, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('trash/empty')
   @ApiOperation({ summary: 'Permanently delete all trashed documents' })
   @ApiResponse({ status: 200, description: 'Trash emptied' })
@@ -83,6 +91,7 @@ export class DocumentController {
     return this.documentService.emptyTrash(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get a document by ID' })
   @ApiParam({ name: 'id', type: String, description: 'Document UUID' })
@@ -95,6 +104,7 @@ export class DocumentController {
     return this.documentService.findOne(id, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a document by ID' })
   @ApiParam({ name: 'id', type: String })
@@ -108,6 +118,7 @@ export class DocumentController {
     return this.documentService.update(id, dto, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a document by ID' })
   @ApiParam({ name: 'id', type: String })
