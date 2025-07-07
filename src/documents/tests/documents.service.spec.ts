@@ -4,7 +4,7 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { DocumentStatus } from 'generated/prisma';
+import { DocumentStatus } from '../../../generated/prisma';
 import { faker } from '@faker-js/faker';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DocumentService } from '../documents.service';

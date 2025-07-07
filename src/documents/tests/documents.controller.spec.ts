@@ -6,7 +6,7 @@ import { CreateDocumentDto } from '../dto/create-document.dto';
 import { DocumentStatusDto } from '../dto/document-status.dto';
 import { QueryDocumentDto } from '../dto/query-document.dto';
 import { UpdateDocumentDto } from '../dto/update-document.dto';
-import { DocumentStatus } from 'generated/prisma';
+import { DocumentStatus } from '../../../generated/prisma';
 
 describe('DocumentController', () => {
   let controller: DocumentController;
