@@ -10,4 +10,8 @@ export class CreateDocumentDto {
   @IsOptional()
   @IsString()
   content?: string;
+
+  @ApiProperty()
+  @IsString()
+  userId: string;
 }

@@ -8,12 +8,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { QueryDocumentDto } from './dto/query-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
+import { DocumentStatus, Prisma } from 'generated/prisma';
 
 @Injectable()
 export class DocumentService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateDocumentDto, userId: string) {
+  async create(dto: CreateDocumentDto) {
     if (!dto.title || dto.title.trim() === '') {
       throw new BadRequestException('Title is required');
     }
@@ -21,24 +22,27 @@ export class DocumentService {
     return this.prisma.document.create({
       data: {
         ...dto,
-        ownerId: userId,
+        ownerId: dto.userId,
       },
     });
   }
 
-  async findAll(query: QueryDocumentDto, userId: string) {
-    const { search, page = 1, limit = 10 } = query;
+  async findAll(query: QueryDocumentDto) {
+    const { search, page = 1, limit = 10, status } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = {
-      ownerId: userId,
+    const where: Prisma.DocumentWhereInput = {
+      ownerId: query.userId,
     };
 
     if (search) {
       where.title = {
         contains: search,
-        mode: 'insensitive',
       };
+    }
+
+    if (status) {
+      where.status = status;
     }
 
     const [documents, total] = await this.prisma.$transaction([
@@ -78,7 +82,7 @@ export class DocumentService {
   }
 
   async update(id: string, dto: UpdateDocumentDto, userId: string) {
-    await this.findOne(id, userId); // will throw if not authorized
+    await this.findOne(id, userId);
 
     if (dto.title?.trim() === '') {
       throw new BadRequestException('Title cannot be empty');
@@ -91,7 +95,7 @@ export class DocumentService {
   }
 
   async remove(id: string, userId: string) {
-    await this.findOne(id, userId); // will throw if not authorized
+    await this.findOne(id, userId);
     return this.prisma.document.delete({
       where: { id },
     });
@@ -149,5 +153,14 @@ export class DocumentService {
     return {
       message: `${deleted.count} trashed document(s) permanently deleted.`,
     };
+  }
+
+  async changeStatus(id: string, status: DocumentStatus, userId: string) {
+    await this.findOne(id, userId);
+
+    return this.prisma.document.update({
+      where: { id },
+      data: { status },
+    });
   }
 }
