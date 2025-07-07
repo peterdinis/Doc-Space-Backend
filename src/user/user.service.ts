@@ -18,4 +18,18 @@ export class UserService {
 
     return allUsersDocuments;
   }
+
+  async allMySharedDocuments(userId: string) {
+    const allUserSharedDocuments = await this.prismaService.sharedDocument.findMany({
+      where: {
+        userId
+      }
+    })
+
+    if(!allUserSharedDocuments) {
+      throw new NotFoundException("User does not have any shared documents")
+    }
+
+    return allUserSharedDocuments
+  }
 }
