@@ -59,7 +59,9 @@ describe('UserService', () => {
 
       mockPrismaService.document.findMany.mockResolvedValue([]);
 
-      await expect(service.myDocuments(userId)).rejects.toThrow(NotFoundException);
+      await expect(service.myDocuments(userId)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(prismaService.document.findMany).toHaveBeenCalledWith({
         where: { ownerId: userId },
       });
