@@ -28,6 +28,7 @@ model Document {
   content     String?
   ownerId     String
   inTrash     Boolean?         @default(false)
+  status      DocumentStatus   @default(NEW)
   owner       User             @relation("UserDocuments", fields: [ownerId], references: [id])
   sharedWith  SharedDocument[] @relation("SharedDocumentsOnDocument")
   createdAt   DateTime         @default(now())
