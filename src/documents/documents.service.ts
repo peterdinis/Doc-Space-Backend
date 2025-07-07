@@ -27,18 +27,22 @@ export class DocumentService {
     });
   }
 
-  async findAll(query: QueryDocumentDto, userId: string) {
-    const { search, page = 1, limit = 10 } = query;
+  async findAll(query: QueryDocumentDto) {
+    const { search, page = 1, limit = 10, status } = query;
     const skip = (page - 1) * limit;
 
-    const where = {
-      ownerId: userId,
-    } as unknown as Prisma.DocumentWhereInput;
+    const where: Prisma.DocumentWhereInput = {
+      ownerId: query.userId,
+    };
 
     if (search) {
       where.title = {
         contains: search,
       };
+    }
+
+    if (status) {
+      where.status = status;
     }
 
     const [documents, total] = await this.prisma.$transaction([
@@ -78,7 +82,7 @@ export class DocumentService {
   }
 
   async update(id: string, dto: UpdateDocumentDto, userId: string) {
-    await this.findOne(id, userId); // will throw if not authorized
+    await this.findOne(id, userId);
 
     if (dto.title?.trim() === '') {
       throw new BadRequestException('Title cannot be empty');
@@ -91,7 +95,7 @@ export class DocumentService {
   }
 
   async remove(id: string, userId: string) {
-    await this.findOne(id, userId); // will throw if not authorized
+    await this.findOne(id, userId);
     return this.prisma.document.delete({
       where: { id },
     });

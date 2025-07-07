@@ -1,5 +1,6 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsInt, Min, IsEnum } from 'class-validator';
+import { DocumentStatus } from 'generated/prisma';
 
 export class QueryDocumentDto {
   @ApiPropertyOptional()
@@ -18,4 +19,13 @@ export class QueryDocumentDto {
   @IsInt()
   @Min(1)
   limit?: number;
+
+  @ApiProperty()
+  @IsString()
+  userId: string;
+
+  @ApiPropertyOptional({ enum: DocumentStatus })
+  @IsOptional()
+  @IsEnum(DocumentStatus)
+  status?: DocumentStatus;
 }

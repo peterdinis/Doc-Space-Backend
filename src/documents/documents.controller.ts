@@ -47,8 +47,8 @@ export class DocumentController {
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, description: 'Paginated list of documents' })
-  findAll(@Query() query: QueryDocumentDto, @CurrentUser('id') userId: string) {
-    return this.documentService.findAll(query, userId);
+  findAll(@Query() query: QueryDocumentDto) {
+    return this.documentService.findAll(query);
   }
 
   @UseGuards(JwtAuthGuard)
