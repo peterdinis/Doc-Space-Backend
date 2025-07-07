@@ -23,6 +23,7 @@ import { QueryDocumentDto } from './dto/query-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { DocumentStatusDto } from './dto/document-status.dto';
 
 @ApiTags('Documents')
 @Controller('documents')
@@ -129,5 +130,19 @@ export class DocumentController {
     @CurrentUser('id') userId: string,
   ) {
     return this.documentService.remove(id, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Change status of a document' })
+  @ApiParam({ name: 'id', type: String, description: 'Document UUID' })
+  @ApiResponse({ status: 200, description: 'Document status updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  changeStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: DocumentStatusDto,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.documentService.changeStatus(id, body.status, userId);
   }
 }

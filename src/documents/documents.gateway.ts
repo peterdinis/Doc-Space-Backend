@@ -76,7 +76,7 @@ export class DocumentGateway
       client.emit('error', 'Access denied or document not found');
       return;
     }
-    
+
     await this.documentService.update(
       data.documentId,
       { content: data.content },

@@ -80,4 +80,5 @@ enum DocumentStatus {
   DRAFT
   SHARED
   DELETED
+  IN_TRASH
 }

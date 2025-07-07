@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { QueryDocumentDto } from './dto/query-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
-import { Prisma } from 'generated/prisma';
+import { DocumentStatus, Prisma } from 'generated/prisma';
 
 @Injectable()
 export class DocumentService {
@@ -153,5 +153,14 @@ export class DocumentService {
     return {
       message: `${deleted.count} trashed document(s) permanently deleted.`,
     };
+  }
+
+  async changeStatus(id: string, status: DocumentStatus, userId: string) {
+    await this.findOne(id, userId);
+
+    return this.prisma.document.update({
+      where: { id },
+      data: { status },
+    });
   }
 }
