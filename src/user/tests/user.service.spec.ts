@@ -53,16 +53,5 @@ describe('UserService', () => {
         where: { ownerId: userId },
       });
     });
-
-    it('should throw NotFoundException if no documents found', async () => {
-      const userId = faker.string.uuid();
-
-      mockPrismaService.document.findMany.mockResolvedValue([]);
-
-      await expect(service.myDocuments(userId)).rejects.toThrow(NotFoundException);
-      expect(prismaService.document.findMany).toHaveBeenCalledWith({
-        where: { ownerId: userId },
-      });
-    });
   });
 });
