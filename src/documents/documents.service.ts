@@ -8,10 +8,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { QueryDocumentDto } from './dto/query-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
+import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class DocumentService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateDocumentDto) {
     if (!dto.title || dto.title.trim() === '') {
@@ -21,7 +22,7 @@ export class DocumentService {
     return this.prisma.document.create({
       data: {
         ...dto,
-        ownerId: dto.userId
+        ownerId: dto.userId,
       },
     });
   }
@@ -30,14 +31,13 @@ export class DocumentService {
     const { search, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where = {
       ownerId: userId,
-    };
+    } as unknown as Prisma.DocumentWhereInput;
 
     if (search) {
       where.title = {
         contains: search,
-        mode: 'insensitive',
       };
     }
 

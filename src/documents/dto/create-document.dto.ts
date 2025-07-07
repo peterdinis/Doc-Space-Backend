@@ -13,5 +13,5 @@ export class CreateDocumentDto {
 
   @ApiProperty()
   @IsString()
-  userId: string
+  userId: string;
 }
