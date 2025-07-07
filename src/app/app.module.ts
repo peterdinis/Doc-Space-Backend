@@ -8,9 +8,13 @@ import { UserModule } from 'src/user/user.module';
 import { SharedDocumentsModule } from 'src/shared-documents/shared-documents.module';
 import { ConnectionsModule } from 'src/connections/connections.module';
 import { MailModule } from 'src/mail/mail.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     PrismaModule,
     AuthModule,
     UserModule,
