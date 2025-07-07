@@ -39,7 +39,7 @@ describe('DocumentController', () => {
             findOne: jest.fn().mockResolvedValue(mockDocument),
             update: jest.fn().mockResolvedValue({ ...mockDocument, title: 'Updated Title' }),
             remove: jest.fn().mockResolvedValue(mockDocument),
-            changeStatus: jest.fn().mockResolvedValue({ ...mockDocument, status: 'PUBLISHED' }),
+            changeStatus: jest.fn().mockResolvedValue({ ...mockDocument, status: 'DRAFT' }),
           },
         },
       ],
