@@ -7,7 +7,7 @@ import { faker } from '@faker-js/faker';
 
 describe('UserController', () => {
   let controller: UserController;
-  
+
   class MockJwtAuthGuard {
     canActivate(context: ExecutionContext) {
       const req = context.switchToHttp().getRequest();
