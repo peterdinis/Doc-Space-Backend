@@ -43,9 +43,9 @@ describe('DocumentService', () => {
 
   describe('create', () => {
     it('should throw if title is empty', async () => {
-      await expect(service.create({ title: '', userId: faker.string.uuid() } as any)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.create({ title: '', userId: faker.string.uuid() } as any),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should create a document', async () => {
@@ -90,7 +90,9 @@ describe('DocumentService', () => {
   describe('findOne', () => {
     it('should throw NotFoundException if not found', async () => {
       mockPrisma.document.findUnique.mockResolvedValue(null);
-      await expect(service.findOne(faker.string.uuid(), faker.string.uuid())).rejects.toThrow(NotFoundException);
+      await expect(
+        service.findOne(faker.string.uuid(), faker.string.uuid()),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException if not owner', async () => {
@@ -120,9 +122,13 @@ describe('DocumentService', () => {
       const userId = faker.string.uuid();
       const docId = faker.string.uuid();
 
-      jest.spyOn(service, 'findOne').mockResolvedValue({ id: docId, ownerId: userId } as any);
+      jest
+        .spyOn(service, 'findOne')
+        .mockResolvedValue({ id: docId, ownerId: userId } as any);
 
-      await expect(service.update(docId, { title: ' ' }, userId)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.update(docId, { title: ' ' }, userId),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should update document', async () => {
@@ -130,7 +136,9 @@ describe('DocumentService', () => {
       const docId = faker.string.uuid();
       const title = faker.lorem.words();
 
-      jest.spyOn(service, 'findOne').mockResolvedValue({ id: docId, ownerId: userId } as any);
+      jest
+        .spyOn(service, 'findOne')
+        .mockResolvedValue({ id: docId, ownerId: userId } as any);
 
       const updated = { id: docId, title };
       mockPrisma.document.update.mockResolvedValue(updated);
@@ -176,14 +184,24 @@ describe('DocumentService', () => {
 
   describe('restoreFromTrash', () => {
     it('should throw if document is not in trash', async () => {
-      const doc = { id: faker.string.uuid(), ownerId: faker.string.uuid(), inTrash: false };
+      const doc = {
+        id: faker.string.uuid(),
+        ownerId: faker.string.uuid(),
+        inTrash: false,
+      };
       jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
 
-      await expect(service.restoreFromTrash(doc.id, doc.ownerId)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.restoreFromTrash(doc.id, doc.ownerId),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should restore document', async () => {
-      const doc = { id: faker.string.uuid(), ownerId: faker.string.uuid(), inTrash: true };
+      const doc = {
+        id: faker.string.uuid(),
+        ownerId: faker.string.uuid(),
+        inTrash: true,
+      };
       jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
 
       mockPrisma.document.update.mockResolvedValue({ ...doc, inTrash: false });
@@ -211,14 +229,16 @@ describe('DocumentService', () => {
       mockPrisma.document.deleteMany.mockResolvedValue({ count: 2 });
 
       const result = await service.emptyTrash(userId);
-      expect(result.message).toContain('2 trashed document(s) permanently deleted.');
+      expect(result.message).toContain(
+        '2 trashed document(s) permanently deleted.',
+      );
     });
   });
 
   describe('changeStatus', () => {
     it('should update document status', async () => {
       const doc = { id: faker.string.uuid(), ownerId: faker.string.uuid() };
-      const status = DocumentStatus.DRAFT
+      const status = DocumentStatus.DRAFT;
 
       jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
       mockPrisma.document.update.mockResolvedValue({ ...doc, status });
