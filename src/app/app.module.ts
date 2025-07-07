@@ -18,6 +18,7 @@ import { MailModule } from 'src/mail/mail.module';
     MailModule,
     ConnectionsModule,
     SharedDocumentsModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],
