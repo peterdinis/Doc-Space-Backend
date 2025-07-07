@@ -13,7 +13,7 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     PrismaModule,
     AuthModule,
@@ -22,7 +22,7 @@ import { ConfigModule } from '@nestjs/config';
     MailModule,
     ConnectionsModule,
     SharedDocumentsModule,
-    MailModule
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
