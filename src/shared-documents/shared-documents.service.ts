@@ -6,29 +6,31 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSharedDocumentDto } from './dto/create-shared-document.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class SharedDocumentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailService: MailService,
+  ) { }
 
   async shareDocument(dto: CreateSharedDocumentDto) {
     const { documentId, userId, accessLevel } = dto;
 
-    // Ensure document exists
     const document = await this.prisma.document.findUnique({
       where: { id: documentId },
     });
+
     if (!document) {
       throw new NotFoundException('Document not found');
     }
 
-    // Ensure user exists
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Check if already shared
     const existing = await this.prisma.sharedDocument.findUnique({
       where: {
         documentId_userId: {
@@ -43,13 +45,29 @@ export class SharedDocumentsService {
     }
 
     try {
-      return await this.prisma.sharedDocument.create({
+      const shared = await this.prisma.sharedDocument.create({
         data: {
           documentId,
           userId,
           accessLevel,
         },
       });
+
+      const sender = await this.prisma.user.findUnique({
+        where: { id: document.ownerId }, 
+      });
+
+      if (sender) {
+        await this.mailService.sendDocumentSharedEmail(
+          user.email,
+          user.name!,
+          sender.name!,
+          document.title,
+          `https://your-app.com/documents/${document.id}` // TODO: Update me later
+        );
+      }
+
+      return shared;
     } catch (error) {
       throw new BadRequestException('Failed to share document');
     }

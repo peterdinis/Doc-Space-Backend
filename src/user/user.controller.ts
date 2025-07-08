@@ -34,7 +34,7 @@ export class UserController {
   @Get('/shared-documents/me/:userId')
   @ApiOperation({ summary: 'Get logged user shared documents' })
   @ApiResponse({ status: 200, description: 'Returns user shared documents' })
-  getMySharedDocuments(@Param("userId") userId: string) {
+  getMySharedDocuments(@Param('userId') userId: string) {
     return this.userService.allMySharedDocuments(userId);
   }
 }

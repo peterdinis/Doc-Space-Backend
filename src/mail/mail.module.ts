@@ -23,7 +23,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           from: config.get('MAIL_FROM'),
         },
         template: {
-          dir: join(__dirname, 'templates'),
+          dir:
+            process.env.NODE_ENV === 'production'
+              ? join(__dirname, 'templates')
+              : join(__dirname, '../../src/mail/templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
