@@ -19,7 +19,7 @@ import {
   ApiResponse,
   ApiQuery,
 } from '@nestjs/swagger';
-import { ConnectionStatus } from 'generated/prisma';
+import { ConnectionStatus } from '../../generated/prisma';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @ApiTags('Connections')
