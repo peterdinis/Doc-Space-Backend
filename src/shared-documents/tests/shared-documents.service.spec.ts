@@ -3,11 +3,10 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 import { AccessLevel } from '../../../generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SharedDocumentsService } from '../shared-documents.service';
-import { MailService } from 'src/mail/mail.service'; // Uprav cestu podle projektu
+import { MailService } from 'src/mail/mail.service';
 
 describe('SharedDocumentsService', () => {
   let service: SharedDocumentsService;
-  let prisma: PrismaService;
 
   const mockPrisma = {
     document: {
@@ -38,7 +37,6 @@ describe('SharedDocumentsService', () => {
     }).compile();
 
     service = module.get<SharedDocumentsService>(SharedDocumentsService);
-    prisma = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => jest.clearAllMocks());
