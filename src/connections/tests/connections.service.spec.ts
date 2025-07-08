@@ -2,18 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { ConnectionsService } from '../connections.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ConnectionStatus } from 'generated/prisma';
+import { ConnectionStatus } from '../../../generated/prisma';
 import { faker } from '@faker-js/faker';
 
 describe('ConnectionsService', () => {
   let service: ConnectionsService;
   let prismaMock: {
     connection: {
-      create: jest.Mock,
-      findMany: jest.Mock,
-      count: jest.Mock,
-      findUnique: jest.Mock,
-      update: jest.Mock,
+      create: jest.Mock;
+      findMany: jest.Mock;
+      count: jest.Mock;
+      findUnique: jest.Mock;
+      update: jest.Mock;
     };
   };
 
@@ -80,7 +80,12 @@ describe('ConnectionsService', () => {
       prismaMock.connection.findMany.mockResolvedValue(connections);
       prismaMock.connection.count.mockResolvedValue(3);
 
-      const result = await service.findUserConnections(userId, ConnectionStatus.ACCEPTED, 1, 10);
+      const result = await service.findUserConnections(
+        userId,
+        ConnectionStatus.ACCEPTED,
+        1,
+        10,
+      );
 
       expect(prismaMock.connection.findMany).toHaveBeenCalled();
       expect(prismaMock.connection.count).toHaveBeenCalled();
@@ -113,7 +118,9 @@ describe('ConnectionsService', () => {
 
       const result = await service.updateStatus(id, { status: newStatus });
 
-      expect(prismaMock.connection.findUnique).toHaveBeenCalledWith({ where: { id } });
+      expect(prismaMock.connection.findUnique).toHaveBeenCalledWith({
+        where: { id },
+      });
       expect(prismaMock.connection.update).toHaveBeenCalledWith({
         where: { id },
         data: { status: newStatus },
