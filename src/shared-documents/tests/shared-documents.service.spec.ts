@@ -3,10 +3,10 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 import { AccessLevel } from '../../../generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SharedDocumentsService } from '../shared-documents.service';
+import { MailService } from 'src/mail/mail.service';
 
 describe('SharedDocumentsService', () => {
   let service: SharedDocumentsService;
-  let prisma: PrismaService;
 
   const mockPrisma = {
     document: {
@@ -23,16 +23,20 @@ describe('SharedDocumentsService', () => {
     },
   };
 
+  const mockMailService = {
+    sendMail: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SharedDocumentsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: MailService, useValue: mockMailService },
       ],
     }).compile();
 
     service = module.get<SharedDocumentsService>(SharedDocumentsService);
-    prisma = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -82,6 +86,7 @@ describe('SharedDocumentsService', () => {
       const result = await service.shareDocument(dto);
       expect(result).toEqual({ id: 'new-share' });
       expect(mockPrisma.sharedDocument.create).toHaveBeenCalled();
+      expect(mockMailService.sendMail).toHaveBeenCalled(); // pokud to ve službě voláte
     });
   });
 
