@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { ConnectionsService } from '../connections.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ConnectionStatus } from 'generated/prisma';
+import { ConnectionStatus } from '../../../generated/prisma';
 import { faker } from '@faker-js/faker';
 
 describe('ConnectionsService', () => {
