@@ -31,14 +31,12 @@ describe('DocumentController', () => {
           provide: DocumentService,
           useValue: {
             create: jest.fn().mockResolvedValue(mockDocument),
-            findAll: jest
-              .fn()
-              .mockResolvedValue({
-                data: [mockDocument],
-                total: 1,
-                page: 1,
-                totalPages: 1,
-              }),
+            findAll: jest.fn().mockResolvedValue({
+              data: [mockDocument],
+              total: 1,
+              page: 1,
+              totalPages: 1,
+            }),
             getTrashed: jest.fn().mockResolvedValue([mockDocument]),
             moveToTrash: jest
               .fn()
@@ -46,11 +44,9 @@ describe('DocumentController', () => {
             restoreFromTrash: jest
               .fn()
               .mockResolvedValue({ ...mockDocument, inTrash: false }),
-            emptyTrash: jest
-              .fn()
-              .mockResolvedValue({
-                message: '1 trashed document(s) permanently deleted.',
-              }),
+            emptyTrash: jest.fn().mockResolvedValue({
+              message: '1 trashed document(s) permanently deleted.',
+            }),
             findOne: jest.fn().mockResolvedValue(mockDocument),
             update: jest
               .fn()

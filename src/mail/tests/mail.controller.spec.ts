@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MailController } from '../mail.controller';
 import { MailService } from '../mail.service';
 
-
 describe('MailController', () => {
   let controller: MailController;
   let mailService: MailService;
@@ -26,16 +25,16 @@ describe('MailController', () => {
   });
 
   describe('testSend', () => {
-  it('should call sendWelcomeEmail with correct params and return result', async () => {
-    mockMailService.sendWelcomeEmail.mockResolvedValue('email sent');
+    it('should call sendWelcomeEmail with correct params and return result', async () => {
+      mockMailService.sendWelcomeEmail.mockResolvedValue('email sent');
 
-    const result = await controller.testSend('test@example.com');
+      const result = await controller.testSend('test@example.com');
 
-    expect(mailService.sendWelcomeEmail).toHaveBeenCalledWith(
-      'test@example.com',
-      'John Doe',
-    );
-    expect(result).toBe('email sent');
+      expect(mailService.sendWelcomeEmail).toHaveBeenCalledWith(
+        'test@example.com',
+        'John Doe',
+      );
+      expect(result).toBe('email sent');
+    });
   });
-});
 });
