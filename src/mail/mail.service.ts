@@ -24,4 +24,24 @@ export class MailService {
       context: { name },
     });
   }
+
+  async sendDocumentSharedEmail(
+    recipientEmail: string,
+    recipientName: string,
+    senderName: string,
+    documentTitle: string,
+    documentLink: string,
+  ) {
+    await this.mailerService.sendMail({
+      to: recipientEmail,
+      subject: `Dokument "${documentTitle}" bol s tebou zdieľaný`,
+      template: './document-shared',
+      context: {
+        recipientName,
+        senderName,
+        documentTitle,
+        documentLink,
+      },
+    });
+  }
 }
