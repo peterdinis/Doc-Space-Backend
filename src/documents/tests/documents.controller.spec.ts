@@ -31,15 +31,34 @@ describe('DocumentController', () => {
           provide: DocumentService,
           useValue: {
             create: jest.fn().mockResolvedValue(mockDocument),
-            findAll: jest.fn().mockResolvedValue({ data: [mockDocument], total: 1, page: 1, totalPages: 1 }),
+            findAll: jest
+              .fn()
+              .mockResolvedValue({
+                data: [mockDocument],
+                total: 1,
+                page: 1,
+                totalPages: 1,
+              }),
             getTrashed: jest.fn().mockResolvedValue([mockDocument]),
-            moveToTrash: jest.fn().mockResolvedValue({ ...mockDocument, inTrash: true }),
-            restoreFromTrash: jest.fn().mockResolvedValue({ ...mockDocument, inTrash: false }),
-            emptyTrash: jest.fn().mockResolvedValue({ message: '1 trashed document(s) permanently deleted.' }),
+            moveToTrash: jest
+              .fn()
+              .mockResolvedValue({ ...mockDocument, inTrash: true }),
+            restoreFromTrash: jest
+              .fn()
+              .mockResolvedValue({ ...mockDocument, inTrash: false }),
+            emptyTrash: jest
+              .fn()
+              .mockResolvedValue({
+                message: '1 trashed document(s) permanently deleted.',
+              }),
             findOne: jest.fn().mockResolvedValue(mockDocument),
-            update: jest.fn().mockResolvedValue({ ...mockDocument, title: 'Updated Title' }),
+            update: jest
+              .fn()
+              .mockResolvedValue({ ...mockDocument, title: 'Updated Title' }),
             remove: jest.fn().mockResolvedValue(mockDocument),
-            changeStatus: jest.fn().mockResolvedValue({ ...mockDocument, status: 'DRAFT' }),
+            changeStatus: jest
+              .fn()
+              .mockResolvedValue({ ...mockDocument, status: 'DRAFT' }),
           },
         },
       ],
@@ -74,14 +93,26 @@ describe('DocumentController', () => {
   });
 
   it('should move document to trash', async () => {
-    const result = await controller.moveToTrash(mockDocument.id, mockDocument.ownerId);
-    expect(service.moveToTrash).toHaveBeenCalledWith(mockDocument.id, mockDocument.ownerId);
+    const result = await controller.moveToTrash(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
+    expect(service.moveToTrash).toHaveBeenCalledWith(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
     expect(result.inTrash).toBe(true);
   });
 
   it('should restore document from trash', async () => {
-    const result = await controller.restoreFromTrash(mockDocument.id, mockDocument.ownerId);
-    expect(service.restoreFromTrash).toHaveBeenCalledWith(mockDocument.id, mockDocument.ownerId);
+    const result = await controller.restoreFromTrash(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
+    expect(service.restoreFromTrash).toHaveBeenCalledWith(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
     expect(result.inTrash).toBe(false);
   });
 
@@ -92,28 +123,56 @@ describe('DocumentController', () => {
   });
 
   it('should find a document by id', async () => {
-    const result = await controller.findOne(mockDocument.id, mockDocument.ownerId);
-    expect(service.findOne).toHaveBeenCalledWith(mockDocument.id, mockDocument.ownerId);
+    const result = await controller.findOne(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
+    expect(service.findOne).toHaveBeenCalledWith(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
     expect(result).toEqual(mockDocument);
   });
 
   it('should update a document', async () => {
     const dto: UpdateDocumentDto = { title: 'Updated Title' };
-    const result = await controller.update(mockDocument.id, dto, mockDocument.ownerId);
-    expect(service.update).toHaveBeenCalledWith(mockDocument.id, dto, mockDocument.ownerId);
+    const result = await controller.update(
+      mockDocument.id,
+      dto,
+      mockDocument.ownerId,
+    );
+    expect(service.update).toHaveBeenCalledWith(
+      mockDocument.id,
+      dto,
+      mockDocument.ownerId,
+    );
     expect(result.title).toBe('Updated Title');
   });
 
   it('should delete a document', async () => {
-    const result = await controller.remove(mockDocument.id, mockDocument.ownerId);
-    expect(service.remove).toHaveBeenCalledWith(mockDocument.id, mockDocument.ownerId);
+    const result = await controller.remove(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
+    expect(service.remove).toHaveBeenCalledWith(
+      mockDocument.id,
+      mockDocument.ownerId,
+    );
     expect(result).toEqual(mockDocument);
   });
 
   it('should change document status', async () => {
     const body: DocumentStatusDto = { status: DocumentStatus.DRAFT };
-    const result = await controller.changeStatus(mockDocument.id, body, mockDocument.ownerId);
-    expect(service.changeStatus).toHaveBeenCalledWith(mockDocument.id, DocumentStatus.DRAFT, mockDocument.ownerId);
+    const result = await controller.changeStatus(
+      mockDocument.id,
+      body,
+      mockDocument.ownerId,
+    );
+    expect(service.changeStatus).toHaveBeenCalledWith(
+      mockDocument.id,
+      DocumentStatus.DRAFT,
+      mockDocument.ownerId,
+    );
     expect(result.status).toBe(DocumentStatus.DRAFT);
   });
 });

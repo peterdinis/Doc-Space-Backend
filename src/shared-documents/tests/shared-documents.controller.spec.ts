@@ -3,7 +3,6 @@ import { AccessLevel } from '../../../generated/prisma';
 import { SharedDocumentsController } from '../shared-couments.controller';
 import { SharedDocumentsService } from '../shared-documents.service';
 
-
 describe('SharedDocumentsController', () => {
   let controller: SharedDocumentsController;
   let service: SharedDocumentsService;
@@ -20,7 +19,9 @@ describe('SharedDocumentsController', () => {
       providers: [{ provide: SharedDocumentsService, useValue: mockService }],
     }).compile();
 
-    controller = module.get<SharedDocumentsController>(SharedDocumentsController);
+    controller = module.get<SharedDocumentsController>(
+      SharedDocumentsController,
+    );
     service = module.get<SharedDocumentsService>(SharedDocumentsService);
   });
 

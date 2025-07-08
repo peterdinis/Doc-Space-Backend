@@ -4,8 +4,8 @@ import { SharedDocumentsService } from './shared-documents.service';
 import { SharedDocumentsController } from './shared-couments.controller';
 
 @Module({
-    imports: [PrismaModule],
-    providers: [SharedDocumentsService],
-    controllers: [SharedDocumentsController]
+  imports: [PrismaModule],
+  providers: [SharedDocumentsService],
+  controllers: [SharedDocumentsController],
 })
 export class SharedDocumentsModule {}
