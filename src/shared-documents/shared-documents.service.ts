@@ -13,7 +13,7 @@ export class SharedDocumentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailService: MailService,
-  ) { }
+  ) {}
 
   async shareDocument(dto: CreateSharedDocumentDto) {
     const { documentId, userId, accessLevel } = dto;
@@ -54,7 +54,7 @@ export class SharedDocumentsService {
       });
 
       const sender = await this.prisma.user.findUnique({
-        where: { id: document.ownerId }, 
+        where: { id: document.ownerId },
       });
 
       if (sender) {
@@ -63,7 +63,7 @@ export class SharedDocumentsService {
           user.name!,
           sender.name!,
           document.title,
-          `https://your-app.com/documents/${document.id}` // TODO: Update me later
+          `https://your-app.com/documents/${document.id}`, // TODO: Update me later
         );
       }
 
