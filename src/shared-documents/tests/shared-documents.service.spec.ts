@@ -3,6 +3,7 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 import { AccessLevel } from '../../../generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SharedDocumentsService } from '../shared-documents.service';
+import { MailService } from 'src/mail/mail.service'; // Uprav cestu podle projektu
 
 describe('SharedDocumentsService', () => {
   let service: SharedDocumentsService;
@@ -23,11 +24,16 @@ describe('SharedDocumentsService', () => {
     },
   };
 
+  const mockMailService = {
+    sendMail: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SharedDocumentsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: MailService, useValue: mockMailService },
       ],
     }).compile();
 
@@ -47,30 +53,22 @@ describe('SharedDocumentsService', () => {
     it('throws if document not found', async () => {
       mockPrisma.document.findUnique.mockResolvedValue(null);
 
-      await expect(service.shareDocument(dto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.shareDocument(dto)).rejects.toThrow(NotFoundException);
     });
 
     it('throws if user not found', async () => {
       mockPrisma.document.findUnique.mockResolvedValue({ id: 'doc1' });
       mockPrisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.shareDocument(dto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.shareDocument(dto)).rejects.toThrow(NotFoundException);
     });
 
     it('throws if already shared', async () => {
       mockPrisma.document.findUnique.mockResolvedValue({ id: 'doc1' });
       mockPrisma.user.findUnique.mockResolvedValue({ id: 'user2' });
-      mockPrisma.sharedDocument.findUnique.mockResolvedValue({
-        id: 'existing',
-      });
+      mockPrisma.sharedDocument.findUnique.mockResolvedValue({ id: 'existing' });
 
-      await expect(service.shareDocument(dto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.shareDocument(dto)).rejects.toThrow(ConflictException);
     });
 
     it('creates shared document successfully', async () => {
@@ -82,6 +80,7 @@ describe('SharedDocumentsService', () => {
       const result = await service.shareDocument(dto);
       expect(result).toEqual({ id: 'new-share' });
       expect(mockPrisma.sharedDocument.create).toHaveBeenCalled();
+      expect(mockMailService.sendMail).toHaveBeenCalled(); // pokud to ve službě voláte
     });
   });
 
@@ -108,9 +107,7 @@ describe('SharedDocumentsService', () => {
     it('throws if access not found', async () => {
       mockPrisma.sharedDocument.delete.mockRejectedValue(new Error());
 
-      await expect(service.revokeAccess('doc1', 'missing')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.revokeAccess('doc1', 'missing')).rejects.toThrow(NotFoundException);
     });
   });
 });
