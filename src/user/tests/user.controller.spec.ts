@@ -4,7 +4,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { faker } from '@faker-js/faker';
-import { UserService } from '../user.service'; // Uprav cestu podľa potreby
+import { UserService } from '../user.service';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -16,7 +16,6 @@ describe('UserController', () => {
   };
 
   const mockUserService = {
-    // V prípade potreby pridaj ďalšie mock metódy
     findById: jest.fn().mockResolvedValue(mockUser),
   };
 

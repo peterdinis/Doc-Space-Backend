@@ -63,7 +63,7 @@ export class SharedDocumentsService {
           user.name!,
           sender.name!,
           document.title,
-          `https://your-app.com/documents/${document.id}`, // TODO: Update me later
+          `https://your-app.com/documents/${document.id}`,
         );
       }
 

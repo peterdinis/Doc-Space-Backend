@@ -55,7 +55,9 @@ describe('ConnectionsController', () => {
         { id: faker.string.uuid() },
         { id: faker.string.uuid() },
       ];
-      mockConnectionsService.findUserConnections.mockResolvedValue(mockConnections);
+      mockConnectionsService.findUserConnections.mockResolvedValue(
+        mockConnections,
+      );
 
       const result = await controller.findMine(mockReq);
 
@@ -74,7 +76,9 @@ describe('ConnectionsController', () => {
       const limit = faker.number.int({ min: 5, max: 20 });
 
       const mockConnections = [{ id: faker.string.uuid() }];
-      mockConnectionsService.findUserConnections.mockResolvedValue(mockConnections);
+      mockConnectionsService.findUserConnections.mockResolvedValue(
+        mockConnections,
+      );
 
       const result = await controller.findMine(mockReq, status, page, limit);
 
