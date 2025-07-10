@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from '../user.service';
-import { NotFoundException } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
 
 describe('UserService', () => {
