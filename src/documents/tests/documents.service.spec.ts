@@ -4,10 +4,19 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { DocumentStatus } from '../../../generated/prisma';
+import { DocumentStatus, Document as PrismaDocument } from '../../../generated/prisma';
 import { faker } from '@faker-js/faker';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DocumentService } from '../documents.service';
+
+interface CreateDocumentDto {
+  title: string;
+  userId: string;
+}
+
+interface UpdateDocumentDto {
+  title: string;
+}
 
 const mockPrisma = {
   document: {
@@ -43,21 +52,29 @@ describe('DocumentService', () => {
 
   describe('create', () => {
     it('should throw if title is empty', async () => {
-      await expect(
-        service.create({ title: '', userId: faker.string.uuid() } as any),
-      ).rejects.toThrow(BadRequestException);
+      const dto: CreateDocumentDto = { title: '', userId: faker.string.uuid() };
+      await expect(service.create(dto)).rejects.toThrow(BadRequestException);
     });
 
     it('should create a document', async () => {
-      const dto = {
+      const dto: CreateDocumentDto = {
         title: faker.lorem.sentence(),
         userId: faker.string.uuid(),
       };
-      const mockDocument = { id: faker.string.uuid(), ...dto };
+      const mockDocument: PrismaDocument = {
+        id: faker.string.uuid(),
+        title: dto.title,
+        ownerId: dto.userId,
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        inTrash: false,
+      };
 
       mockPrisma.document.create.mockResolvedValue(mockDocument);
 
-      const result = await service.create(dto as any);
+      const result = await service.create(dto);
       expect(result).toEqual(mockDocument);
       expect(mockPrisma.document.create).toHaveBeenCalledWith({
         data: { ...dto, ownerId: dto.userId },
@@ -73,14 +90,33 @@ describe('DocumentService', () => {
         limit: 2,
         search: faker.word.words(),
       };
-      const docs = [
-        { id: faker.string.uuid(), title: faker.lorem.sentence() },
-        { id: faker.string.uuid(), title: faker.lorem.sentence() },
+
+      const docs: PrismaDocument[] = [
+        {
+          id: faker.string.uuid(),
+          title: faker.lorem.sentence(),
+          ownerId: query.userId,
+          content: '',
+          status: DocumentStatus.DRAFT,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          inTrash: false,
+        },
+        {
+          id: faker.string.uuid(),
+          title: faker.lorem.sentence(),
+          ownerId: query.userId,
+          content: '',
+          status: DocumentStatus.DRAFT,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          inTrash: false,
+        },
       ];
 
       mockPrisma.$transaction.mockResolvedValue([docs, 5]);
 
-      const result = await service.findAll(query as any);
+      const result = await service.findAll(query);
       expect(result.data).toEqual(docs);
       expect(result.total).toBe(5);
       expect(result.totalPages).toBe(3);
@@ -99,7 +135,7 @@ describe('DocumentService', () => {
       mockPrisma.document.findUnique.mockResolvedValue({
         id: faker.string.uuid(),
         ownerId: faker.string.uuid(),
-      });
+      } as PrismaDocument);
 
       await expect(
         service.findOne(faker.string.uuid(), faker.string.uuid()),
@@ -108,7 +144,16 @@ describe('DocumentService', () => {
 
     it('should return document if found and authorized', async () => {
       const userId = faker.string.uuid();
-      const doc = { id: faker.string.uuid(), ownerId: userId };
+      const doc: PrismaDocument = {
+        id: faker.string.uuid(),
+        ownerId: userId,
+        title: faker.lorem.words(),
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        inTrash: false,
+      };
 
       mockPrisma.document.findUnique.mockResolvedValue(doc);
 
@@ -122,13 +167,16 @@ describe('DocumentService', () => {
       const userId = faker.string.uuid();
       const docId = faker.string.uuid();
 
-      jest
-        .spyOn(service, 'findOne')
-        .mockResolvedValue({ id: docId, ownerId: userId } as any);
+      jest.spyOn(service, 'findOne').mockResolvedValue({
+        id: docId,
+        ownerId: userId,
+      } as PrismaDocument);
 
-      await expect(
-        service.update(docId, { title: ' ' }, userId),
-      ).rejects.toThrow(BadRequestException);
+      const dto: UpdateDocumentDto = { title: ' ' };
+
+      await expect(service.update(docId, dto, userId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should update document', async () => {
@@ -136,11 +184,22 @@ describe('DocumentService', () => {
       const docId = faker.string.uuid();
       const title = faker.lorem.words();
 
-      jest
-        .spyOn(service, 'findOne')
-        .mockResolvedValue({ id: docId, ownerId: userId } as any);
+      jest.spyOn(service, 'findOne').mockResolvedValue({
+        id: docId,
+        ownerId: userId,
+      } as PrismaDocument);
 
-      const updated = { id: docId, title };
+      const updated: PrismaDocument = {
+        id: docId,
+        title,
+        ownerId: userId,
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        inTrash: false,
+      };
+
       mockPrisma.document.update.mockResolvedValue(updated);
 
       const result = await service.update(docId, { title }, userId);
@@ -150,9 +209,18 @@ describe('DocumentService', () => {
 
   describe('remove', () => {
     it('should delete document', async () => {
-      const doc = { id: faker.string.uuid(), ownerId: faker.string.uuid() };
+      const doc: PrismaDocument = {
+        id: faker.string.uuid(),
+        ownerId: faker.string.uuid(),
+        title: '',
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        inTrash: false,
+      };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
+      jest.spyOn(service, 'findOne').mockResolvedValue(doc);
       mockPrisma.document.delete.mockResolvedValue(doc);
 
       const result = await service.remove(doc.id, doc.ownerId);
@@ -172,9 +240,18 @@ describe('DocumentService', () => {
 
   describe('moveToTrash', () => {
     it('should move document to trash', async () => {
-      const doc = { id: faker.string.uuid(), ownerId: faker.string.uuid() };
+      const doc: PrismaDocument = {
+        id: faker.string.uuid(),
+        ownerId: faker.string.uuid(),
+        title: '',
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        inTrash: false,
+      };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
+      jest.spyOn(service, 'findOne').mockResolvedValue(doc);
       mockPrisma.document.update.mockResolvedValue({ ...doc, inTrash: true });
 
       const result = await service.moveToTrash(doc.id, doc.ownerId);
@@ -184,12 +261,18 @@ describe('DocumentService', () => {
 
   describe('restoreFromTrash', () => {
     it('should throw if document is not in trash', async () => {
-      const doc = {
+      const doc: PrismaDocument = {
         id: faker.string.uuid(),
         ownerId: faker.string.uuid(),
         inTrash: false,
+        title: '',
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-      jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(doc);
 
       await expect(
         service.restoreFromTrash(doc.id, doc.ownerId),
@@ -197,13 +280,18 @@ describe('DocumentService', () => {
     });
 
     it('should restore document', async () => {
-      const doc = {
+      const doc: PrismaDocument = {
         id: faker.string.uuid(),
         ownerId: faker.string.uuid(),
         inTrash: true,
+        title: '',
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-      jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
 
+      jest.spyOn(service, 'findOne').mockResolvedValue(doc);
       mockPrisma.document.update.mockResolvedValue({ ...doc, inTrash: false });
 
       const result = await service.restoreFromTrash(doc.id, doc.ownerId);
@@ -214,7 +302,18 @@ describe('DocumentService', () => {
   describe('getTrashed', () => {
     it('should return trashed documents', async () => {
       const userId = faker.string.uuid();
-      const trashed = [{ id: faker.string.uuid(), inTrash: true }];
+      const trashed: PrismaDocument[] = [
+        {
+          id: faker.string.uuid(),
+          ownerId: userId,
+          inTrash: true,
+          title: '',
+          content: '',
+          status: DocumentStatus.DRAFT,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
 
       mockPrisma.document.findMany.mockResolvedValue(trashed);
 
@@ -237,14 +336,24 @@ describe('DocumentService', () => {
 
   describe('changeStatus', () => {
     it('should update document status', async () => {
-      const doc = { id: faker.string.uuid(), ownerId: faker.string.uuid() };
-      const status = DocumentStatus.DRAFT;
+      const doc: PrismaDocument = {
+        id: faker.string.uuid(),
+        ownerId: faker.string.uuid(),
+        inTrash: false,
+        title: '',
+        content: '',
+        status: DocumentStatus.DRAFT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(doc as any);
-      mockPrisma.document.update.mockResolvedValue({ ...doc, status });
+      const newStatus = DocumentStatus.IN_TRASH
 
-      const result = await service.changeStatus(doc.id, status, doc.ownerId);
-      expect(result.status).toBe(status);
+      jest.spyOn(service, 'findOne').mockResolvedValue(doc);
+      mockPrisma.document.update.mockResolvedValue({ ...doc, status: newStatus });
+
+      const result = await service.changeStatus(doc.id, newStatus, doc.ownerId);
+      expect(result.status).toBe(newStatus);
     });
   });
 });
