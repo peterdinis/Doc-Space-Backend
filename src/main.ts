@@ -6,6 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors()
+
   const config = new DocumentBuilder()
     .setTitle('Doc Space API')
     .setDescription('The API documentation for docs space project')
