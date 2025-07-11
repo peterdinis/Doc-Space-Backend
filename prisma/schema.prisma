@@ -74,7 +74,6 @@ enum AccessLevel {
   COMMENT
 }
 
-
 enum DocumentStatus {
   NEW
   DRAFT
