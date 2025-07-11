@@ -80,4 +80,5 @@ enum DocumentStatus {
   SHARED
   DELETED
   IN_TRASH
+  PUBLISHED
 }
