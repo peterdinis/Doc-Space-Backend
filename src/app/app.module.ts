@@ -24,7 +24,7 @@ import { FolderModule } from 'src/folder/folder.module';
     ConnectionsModule,
     SharedDocumentsModule,
     MailModule,
-    FolderModule
+    FolderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
-import { CreateFolderDto, UpdateFolderDto } from "./dto/folders.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateFolderDto, UpdateFolderDto } from './dto/folders.dto';
 
 @Injectable()
 export class FolderService {
@@ -51,13 +51,13 @@ export class FolderService {
     page?: number;
     limit?: number;
   }) {
-    const { ownerId, search = "", page = 1, limit = 10 } = params;
+    const { ownerId, search = '', page = 1, limit = 10 } = params;
 
     const where = {
       ownerId,
       name: {
         contains: search,
-        mode: "insensitive" as const,
+        mode: 'insensitive' as const,
       },
     };
 
@@ -66,7 +66,7 @@ export class FolderService {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
     });
 

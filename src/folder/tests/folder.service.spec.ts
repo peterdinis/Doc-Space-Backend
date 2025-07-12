@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { PrismaService } from "src/prisma/prisma.service";
-import { NotFoundException } from "@nestjs/common";
-import { faker } from "@faker-js/faker";
-import { FolderService } from "../folder.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { NotFoundException } from '@nestjs/common';
+import { faker } from '@faker-js/faker';
+import { FolderService } from '../folder.service';
 
-describe("FolderService", () => {
+describe('FolderService', () => {
   let service: FolderService;
   let prisma: PrismaService;
 
@@ -42,8 +42,8 @@ describe("FolderService", () => {
     prisma = module.get<PrismaService>(PrismaService);
   });
 
-  describe("createFolder", () => {
-    it("should create and return a folder", async () => {
+  describe('createFolder', () => {
+    it('should create and return a folder', async () => {
       (prisma.folder.create as jest.Mock).mockResolvedValue(fakeFolder);
 
       const result = await service.createFolder({
@@ -61,8 +61,8 @@ describe("FolderService", () => {
     });
   });
 
-  describe("getFolderById", () => {
-    it("should return folder if found", async () => {
+  describe('getFolderById', () => {
+    it('should return folder if found', async () => {
       (prisma.folder.findUnique as jest.Mock).mockResolvedValue(fakeFolder);
 
       const result = await service.getFolderById(fakeFolder.id);
@@ -74,7 +74,7 @@ describe("FolderService", () => {
       expect(result).toEqual(fakeFolder);
     });
 
-    it("should throw NotFoundException if folder not found", async () => {
+    it('should throw NotFoundException if folder not found', async () => {
       (prisma.folder.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(service.getFolderById(fakeFolder.id)).rejects.toThrow(
@@ -83,9 +83,9 @@ describe("FolderService", () => {
     });
   });
 
-  describe("updateFolder", () => {
-    it("should update and return the folder", async () => {
-      const updateData = { name: "Updated Folder Name" };
+  describe('updateFolder', () => {
+    it('should update and return the folder', async () => {
+      const updateData = { name: 'Updated Folder Name' };
       (prisma.folder.findUnique as jest.Mock).mockResolvedValue(fakeFolder);
       (prisma.folder.update as jest.Mock).mockResolvedValue({
         ...fakeFolder,
@@ -101,17 +101,17 @@ describe("FolderService", () => {
       expect(result.name).toBe(updateData.name);
     });
 
-    it("should throw if folder not found", async () => {
+    it('should throw if folder not found', async () => {
       (prisma.folder.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        service.updateFolder(fakeFolder.id, { name: "X" }),
+        service.updateFolder(fakeFolder.id, { name: 'X' }),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe("deleteFolder", () => {
-    it("should delete and return the folder", async () => {
+  describe('deleteFolder', () => {
+    it('should delete and return the folder', async () => {
       (prisma.folder.findUnique as jest.Mock).mockResolvedValue(fakeFolder);
       (prisma.folder.delete as jest.Mock).mockResolvedValue(fakeFolder);
 
@@ -123,7 +123,7 @@ describe("FolderService", () => {
       expect(result).toEqual(fakeFolder);
     });
 
-    it("should throw if folder not found", async () => {
+    it('should throw if folder not found', async () => {
       (prisma.folder.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(service.deleteFolder(fakeFolder.id)).rejects.toThrow(
@@ -132,15 +132,15 @@ describe("FolderService", () => {
     });
   });
 
-  describe("findFolders", () => {
-    it("should return paginated folders", async () => {
+  describe('findFolders', () => {
+    it('should return paginated folders', async () => {
       const folders = Array(3).fill(fakeFolder);
       (prisma.folder.findMany as jest.Mock).mockResolvedValue(folders);
       (prisma.folder.count as jest.Mock).mockResolvedValue(3);
 
       const result = await service.findFolders({
         ownerId: fakeFolder.ownerId,
-        search: "test",
+        search: 'test',
         page: 1,
         limit: 10,
       });
@@ -148,11 +148,11 @@ describe("FolderService", () => {
       expect(prisma.folder.findMany).toHaveBeenCalledWith({
         where: {
           ownerId: fakeFolder.ownerId,
-          name: { contains: "test", mode: "insensitive" },
+          name: { contains: 'test', mode: 'insensitive' },
         },
         skip: 0,
         take: 10,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       });
       expect(prisma.folder.count).toHaveBeenCalled();
 

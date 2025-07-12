@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { FolderController } from "../folder.controller";
-import { FolderService } from "../folder.service";
-import { NotFoundException} from "@nestjs/common";
-import { faker } from "@faker-js/faker";
+import { Test, TestingModule } from '@nestjs/testing';
+import { FolderController } from '../folder.controller';
+import { FolderService } from '../folder.service';
+import { NotFoundException } from '@nestjs/common';
+import { faker } from '@faker-js/faker';
 
-describe("FolderController", () => {
+describe('FolderController', () => {
   let controller: FolderController;
   let service: FolderService;
 
@@ -40,8 +40,8 @@ describe("FolderController", () => {
     jest.clearAllMocks();
   });
 
-  describe("createFolder", () => {
-    it("should call service.createFolder and return result", async () => {
+  describe('createFolder', () => {
+    it('should call service.createFolder and return result', async () => {
       mockFolderService.createFolder.mockResolvedValue(fakeFolder);
 
       const result = await controller.createFolder({
@@ -57,8 +57,8 @@ describe("FolderController", () => {
     });
   });
 
-  describe("getFolders", () => {
-    it("should call service.findFolders with correct params and return result", async () => {
+  describe('getFolders', () => {
+    it('should call service.findFolders with correct params and return result', async () => {
       const paginatedResult = {
         data: [fakeFolder],
         totalCount: 1,
@@ -69,11 +69,16 @@ describe("FolderController", () => {
 
       mockFolderService.findFolders.mockResolvedValue(paginatedResult);
 
-      const result = await controller.getFolders(fakeFolder.ownerId, "search", 1, 10);
+      const result = await controller.getFolders(
+        fakeFolder.ownerId,
+        'search',
+        1,
+        10,
+      );
 
       expect(mockFolderService.findFolders).toHaveBeenCalledWith({
         ownerId: fakeFolder.ownerId,
-        search: "search",
+        search: 'search',
         page: 1,
         limit: 10,
       });
@@ -81,44 +86,55 @@ describe("FolderController", () => {
     });
   });
 
-  describe("getFolderById", () => {
-    it("should return folder when found", async () => {
+  describe('getFolderById', () => {
+    it('should return folder when found', async () => {
       mockFolderService.getFolderById.mockResolvedValue(fakeFolder);
 
       const result = await controller.getFolderById(fakeFolder.id);
 
-      expect(mockFolderService.getFolderById).toHaveBeenCalledWith(fakeFolder.id);
+      expect(mockFolderService.getFolderById).toHaveBeenCalledWith(
+        fakeFolder.id,
+      );
       expect(result).toEqual(fakeFolder);
     });
 
-    it("should throw NotFoundException when folder not found", async () => {
-      mockFolderService.getFolderById.mockRejectedValue(new NotFoundException());
+    it('should throw NotFoundException when folder not found', async () => {
+      mockFolderService.getFolderById.mockRejectedValue(
+        new NotFoundException(),
+      );
 
-      await expect(controller.getFolderById(fakeFolder.id)).rejects.toThrow(NotFoundException);
+      await expect(controller.getFolderById(fakeFolder.id)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
-  describe("updateFolder", () => {
-    it("should call service.updateFolder and return updated folder", async () => {
-      const updateDto = { name: "Updated name" };
+  describe('updateFolder', () => {
+    it('should call service.updateFolder and return updated folder', async () => {
+      const updateDto = { name: 'Updated name' };
       const updatedFolder = { ...fakeFolder, ...updateDto };
 
       mockFolderService.updateFolder.mockResolvedValue(updatedFolder);
 
       const result = await controller.updateFolder(fakeFolder.id, updateDto);
 
-      expect(mockFolderService.updateFolder).toHaveBeenCalledWith(fakeFolder.id, updateDto);
+      expect(mockFolderService.updateFolder).toHaveBeenCalledWith(
+        fakeFolder.id,
+        updateDto,
+      );
       expect(result).toEqual(updatedFolder);
     });
   });
 
-  describe("deleteFolder", () => {
-    it("should call service.deleteFolder and return deleted folder", async () => {
+  describe('deleteFolder', () => {
+    it('should call service.deleteFolder and return deleted folder', async () => {
       mockFolderService.deleteFolder.mockResolvedValue(fakeFolder);
 
       const result = await controller.deleteFolder(fakeFolder.id);
 
-      expect(mockFolderService.deleteFolder).toHaveBeenCalledWith(fakeFolder.id);
+      expect(mockFolderService.deleteFolder).toHaveBeenCalledWith(
+        fakeFolder.id,
+      );
       expect(result).toEqual(fakeFolder);
     });
   });
