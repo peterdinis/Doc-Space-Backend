@@ -4,7 +4,10 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { DocumentStatus, Document as PrismaDocument } from '../../../generated/prisma';
+import {
+  DocumentStatus,
+  Document as PrismaDocument,
+} from '../../../generated/prisma';
 import { faker } from '@faker-js/faker';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DocumentService } from '../documents.service';
@@ -347,10 +350,13 @@ describe('DocumentService', () => {
         updatedAt: new Date(),
       };
 
-      const newStatus = DocumentStatus.IN_TRASH
+      const newStatus = DocumentStatus.IN_TRASH;
 
       jest.spyOn(service, 'findOne').mockResolvedValue(doc);
-      mockPrisma.document.update.mockResolvedValue({ ...doc, status: newStatus });
+      mockPrisma.document.update.mockResolvedValue({
+        ...doc,
+        status: newStatus,
+      });
 
       const result = await service.changeStatus(doc.id, newStatus, doc.ownerId);
       expect(result.status).toBe(newStatus);
