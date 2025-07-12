@@ -20,7 +20,7 @@ export class ConnectionsGateway {
     @MessageBody() payload: { id: string; status: string },
   ) {
     const connection = await this.connectionsService.updateStatus(payload.id, {
-      status: payload.status as ConnectionStatus
+      status: payload.status as ConnectionStatus,
     });
 
     this.server.emit('connectionStatusUpdated', connection);
