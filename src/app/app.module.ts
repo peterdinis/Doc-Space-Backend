@@ -9,6 +9,7 @@ import { SharedDocumentsModule } from 'src/shared-documents/shared-documents.mod
 import { ConnectionsModule } from 'src/connections/connections.module';
 import { MailModule } from 'src/mail/mail.module';
 import { ConfigModule } from '@nestjs/config';
+import { FolderModule } from 'src/folder/folder.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ConfigModule } from '@nestjs/config';
     ConnectionsModule,
     SharedDocumentsModule,
     MailModule,
+    FolderModule
   ],
   controllers: [AppController],
   providers: [AppService],
