@@ -17,9 +17,19 @@ model User {
   shared      SharedDocument[] @relation("SharedWithUser")
   connectionsSent     Connection[] @relation("ConnectionsSent")
   connectionsReceived Connection[] @relation("ConnectionsReceived")
+  folders     Folder[]         @relation("UserFolders")
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+}
 
+model Folder {
+  id          String      @id @default(cuid())
+  name        String
+  ownerId     String
+  owner       User        @relation("UserFolders", fields: [ownerId], references: [id])
+  documents   Document[]  @relation("FolderDocuments")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Document {
@@ -27,9 +37,11 @@ model Document {
   title       String
   content     String?
   ownerId     String
+  folderId    String?          // voliteľné pole, dokument môže byť bez folderu
   inTrash     Boolean?         @default(false)
   status      DocumentStatus   @default(NEW)
   owner       User             @relation("UserDocuments", fields: [ownerId], references: [id])
+  folder      Folder?          @relation("FolderDocuments", fields: [folderId], references: [id])
   sharedWith  SharedDocument[] @relation("SharedDocumentsOnDocument")
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
