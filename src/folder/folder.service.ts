@@ -10,8 +10,8 @@ export class FolderService {
     return this.prisma.folder.create({
       data: {
         name: createData.name,
-        ownerId: createData.ownerId
-      }
+        ownerId: createData.ownerId,
+      },
     });
   }
 
