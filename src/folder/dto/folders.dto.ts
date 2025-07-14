@@ -8,11 +8,11 @@ export class CreateFolderDto {
   name!: string;
 
   @ApiProperty({
-    description: "Owner ID"
+    description: 'Owner ID',
   })
   @IsString()
   @IsNotEmpty()
-  ownerId!: string
+  ownerId!: string;
 }
 
 export class UpdateFolderDto {
