@@ -60,7 +60,6 @@ export class FolderService {
       ownerId,
       name: {
         contains: search,
-        mode: 'insensitive' as const,
       },
     };
 
