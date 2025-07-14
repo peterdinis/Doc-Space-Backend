@@ -16,6 +16,7 @@ import {
   ApiResponse,
   ApiQuery,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { DocumentService } from './documents.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
@@ -26,6 +27,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { DocumentStatusDto } from './dto/document-status.dto';
 
 @ApiTags('Documents')
+@ApiBearerAuth()
 @Controller('documents')
 export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}

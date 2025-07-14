@@ -6,6 +6,13 @@ export class CreateFolderDto {
   @IsString()
   @IsNotEmpty()
   name!: string;
+
+  @ApiProperty({
+    description: "Owner ID"
+  })
+  @IsString()
+  @IsNotEmpty()
+  ownerId!: string
 }
 
 export class UpdateFolderDto {

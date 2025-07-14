@@ -6,9 +6,12 @@ import { CreateFolderDto, UpdateFolderDto } from './dto/folders.dto';
 export class FolderService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createFolder(data: CreateFolderDto & { ownerId: string }) {
+  async createFolder(createData: CreateFolderDto) {
     return this.prisma.folder.create({
-      data,
+      data: {
+        name: createData.name,
+        ownerId: createData.ownerId
+      }
     });
   }
 
@@ -57,7 +60,6 @@ export class FolderService {
       ownerId,
       name: {
         contains: search,
-        mode: 'insensitive' as const,
       },
     };
 
