@@ -1,7 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { SharedDocumentsService } from './shared-documents.service';
 import { CreateSharedDocumentDto } from './dto/create-shared-document.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Shared Documents")
+@ApiBearerAuth()
 @Controller('shared-documents')
 export class SharedDocumentsController {
   constructor(private readonly service: SharedDocumentsService) {}

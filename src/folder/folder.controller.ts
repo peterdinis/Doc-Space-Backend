@@ -21,10 +21,12 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateFolderDto, UpdateFolderDto } from './dto/folders.dto';
 
-@ApiTags('folders')
+@ApiTags('Folders')
+@ApiBearerAuth()
 @Controller('folders')
 export class FolderController {
   constructor(private readonly folderService: FolderService) {}
