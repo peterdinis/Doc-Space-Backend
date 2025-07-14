@@ -35,7 +35,7 @@ export class FolderController {
   @ApiBody({ type: CreateFolderDto })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async createFolder(
-    @Body() createFolderDto: CreateFolderDto & { ownerId: string },
+    @Body() createFolderDto: CreateFolderDto,
   ) {
     return this.folderService.createFolder(createFolderDto);
   }
