@@ -66,11 +66,10 @@ export class FolderController {
   })
   async getFolders(
     @Query('ownerId', new ValidationPipe({ whitelist: true })) ownerId: string,
-    @Query('search') search?: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
   ) {
-    return this.folderService.findFolders({ ownerId, search, page, limit });
+    return this.folderService.findFolders({ ownerId, page, limit });
   }
 
   @Get(':id')
