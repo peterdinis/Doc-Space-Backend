@@ -37,7 +37,7 @@ model Document {
   title       String
   content     String?
   ownerId     String
-  folderId    String?          // voliteľné pole, dokument môže byť bez folderu
+  folderId    String?         
   inTrash     Boolean?         @default(false)
   status      DocumentStatus   @default(NEW)
   owner       User             @relation("UserDocuments", fields: [ownerId], references: [id])

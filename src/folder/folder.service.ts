@@ -7,13 +7,16 @@ export class FolderService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createFolder(createData: CreateFolderDto) {
-    return this.prisma.folder.create({
-      data: {
-        name: createData.name,
-        ownerId: createData.ownerId,
+  return this.prisma.folder.create({
+    data: {
+      name: createData.name,
+      ownerId: createData.ownerId,
+      documents: {
+        connect: createData.documents.map((doc) => ({ id: doc.id })),
       },
-    });
-  }
+    },
+  });
+}
 
   async getFolderById(id: string) {
     const folder = await this.prisma.folder.findUnique({
