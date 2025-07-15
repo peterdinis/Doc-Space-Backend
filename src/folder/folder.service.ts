@@ -53,17 +53,13 @@ export class FolderService {
 
   async findFolders(params: {
     ownerId: string;
-    search?: string;
     page?: number;
     limit?: number;
   }) {
-    const { ownerId, search = '', page = 1, limit = 10 } = params;
+    const { ownerId, page = 1, limit = 10 } = params;
 
     const where = {
       ownerId,
-      name: {
-        contains: search,
-      },
     };
 
     const folders = await this.prisma.folder.findMany({
