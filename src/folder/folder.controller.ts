@@ -94,7 +94,7 @@ export class FolderController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete folder by ID' })
   @ApiParam({ name: 'id', description: 'Folder ID' })
-  async deleteFolder(@Param('id', ParseUUIDPipe) id: string) {
+  async deleteFolder(@Param('id') id: string) {
     return this.folderService.deleteFolder(id);
   }
 }
