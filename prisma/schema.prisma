@@ -9,42 +9,42 @@ datasource db {
 }
 
 model User {
-  id          String           @id @default(cuid())
-  email       String           @unique
-  name        String?
-  password    String
-  documents   Document[]       @relation("UserDocuments")
-  shared      SharedDocument[] @relation("SharedWithUser")
-  connectionsSent     Connection[] @relation("ConnectionsSent")
-  connectionsReceived Connection[] @relation("ConnectionsReceived")
-  folders     Folder[]         @relation("UserFolders")
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id                  String           @id @default(cuid())
+  email               String           @unique
+  name                String?
+  password            String
+  documents           Document[]       @relation("UserDocuments")
+  shared              SharedDocument[] @relation("SharedWithUser")
+  connectionsSent     Connection[]     @relation("ConnectionsSent")
+  connectionsReceived Connection[]     @relation("ConnectionsReceived")
+  folders             Folder[]         @relation("UserFolders")
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 }
 
 model Folder {
-  id          String      @id @default(cuid())
-  name        String
-  ownerId     String
-  owner       User        @relation("UserFolders", fields: [ownerId], references: [id])
-  documents   Document[]  @relation("FolderDocuments")
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id        String     @id @default(cuid())
+  name      String
+  userId    String     @default("1234")
+  user      User       @relation("UserFolders", fields: [userId], references: [id])
+  documents Document[] @relation("FolderDocuments")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Document {
-  id          String           @id @default(cuid())
-  title       String
-  content     String?
-  ownerId     String
-  folderId    String?         
-  inTrash     Boolean?         @default(false)
-  status      DocumentStatus   @default(NEW)
-  owner       User             @relation("UserDocuments", fields: [ownerId], references: [id])
-  folder      Folder?          @relation("FolderDocuments", fields: [folderId], references: [id])
-  sharedWith  SharedDocument[] @relation("SharedDocumentsOnDocument")
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id         String           @id @default(cuid())
+  title      String
+  content    String?
+  userId     String           
+  folderId   String?
+  inTrash    Boolean?         @default(false)
+  status     DocumentStatus   @default(NEW)
+  user       User             @relation("UserDocuments", fields: [userId], references: [id])
+  folder     Folder?          @relation("FolderDocuments", fields: [folderId], references: [id])
+  sharedWith SharedDocument[] @relation("SharedDocumentsOnDocument")
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 }
 
 model SharedDocument {
@@ -61,16 +61,16 @@ model SharedDocument {
 }
 
 model Connection {
-  id          String      @id @default(cuid())
+  id          String           @id @default(cuid())
   requesterId String
   receiverId  String
   status      ConnectionStatus @default(PENDING)
-  createdAt   DateTime    @default(now())
+  createdAt   DateTime         @default(now())
 
   requester User @relation("ConnectionsSent", fields: [requesterId], references: [id])
   receiver  User @relation("ConnectionsReceived", fields: [receiverId], references: [id])
 
-  @@unique([requesterId, receiverId]) 
+  @@unique([requesterId, receiverId])
 }
 
 enum ConnectionStatus {
