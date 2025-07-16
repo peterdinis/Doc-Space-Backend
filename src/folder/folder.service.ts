@@ -4,19 +4,19 @@ import { CreateFolderDto, UpdateFolderDto } from './dto/folders.dto';
 
 @Injectable()
 export class FolderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async createFolder(createData: CreateFolderDto) {
-  return this.prisma.folder.create({
-    data: {
-      name: createData.name,
-      userId: createData.ownerId,
-      documents: {
-        connect: createData.documents.map((doc) => ({ id: doc.id })),
+    return this.prisma.folder.create({
+      data: {
+        name: createData.name,
+        userId: createData.ownerId,
+        documents: {
+          connect: createData.documents.map((doc) => ({ id: doc.id })),
+        },
       },
-    },
-  });
-}
+    });
+  }
 
   async getFolderById(id: string) {
     const folder = await this.prisma.folder.findUnique({
@@ -55,21 +55,38 @@ export class FolderService {
     ownerId: string;
     page?: number;
     limit?: number;
+    search?: string;
   }) {
-    const { page = 1, limit = 10 } = params;
+    const { ownerId, page = 1, limit = 10, search } = params;
 
-    const folders = await this.prisma.folder.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    const where = {
+      userId: ownerId,
+      ...(search
+        ? {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        }
+        : {}),
+    };
+
+    const [folders, total] = await this.prisma.$transaction([
+      this.prisma.folder.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.folder.count({ where }),
+    ]);
 
     return {
       data: folders,
       page,
       limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     };
   }
 }
