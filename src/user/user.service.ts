@@ -8,7 +8,7 @@ export class UserService {
   async myDocuments(userId: string) {
     const allUsersDocuments = await this.prismaService.document.findMany({
       where: {
-        ownerId: userId,
+        userId: userId,
       },
     });
 

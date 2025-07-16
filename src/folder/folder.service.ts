@@ -10,7 +10,7 @@ export class FolderService {
   return this.prisma.folder.create({
     data: {
       name: createData.name,
-      ownerId: createData.ownerId,
+      userId: createData.ownerId,
       documents: {
         connect: createData.documents.map((doc) => ({ id: doc.id })),
       },
@@ -23,7 +23,7 @@ export class FolderService {
       where: { id },
       include: {
         documents: true,
-        owner: true,
+        user: true,
       },
     });
 
@@ -56,14 +56,9 @@ export class FolderService {
     page?: number;
     limit?: number;
   }) {
-    const { ownerId, page = 1, limit = 10 } = params;
-
-    const where = {
-      ownerId,
-    };
+    const { page = 1, limit = 10 } = params;
 
     const folders = await this.prisma.folder.findMany({
-      where,
       skip: (page - 1) * limit,
       take: limit,
       orderBy: {
@@ -71,14 +66,10 @@ export class FolderService {
       },
     });
 
-    const totalCount = await this.prisma.folder.count({ where });
-
     return {
       data: folders,
-      totalCount,
       page,
       limit,
-      totalPages: Math.ceil(totalCount / limit),
     };
   }
 }
