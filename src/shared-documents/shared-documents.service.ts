@@ -54,7 +54,7 @@ export class SharedDocumentsService {
       });
 
       const sender = await this.prisma.user.findUnique({
-        where: { id: document.ownerId },
+        where: { id: document.userId },
       });
 
       if (sender) {

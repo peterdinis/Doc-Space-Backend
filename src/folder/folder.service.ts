@@ -4,13 +4,16 @@ import { CreateFolderDto, UpdateFolderDto } from './dto/folders.dto';
 
 @Injectable()
 export class FolderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async createFolder(createData: CreateFolderDto) {
     return this.prisma.folder.create({
       data: {
         name: createData.name,
-        ownerId: createData.ownerId,
+        userId: createData.ownerId,
+        documents: {
+          connect: createData.documents.map((doc) => ({ id: doc.id })),
+        },
       },
     });
   }
@@ -20,7 +23,7 @@ export class FolderService {
       where: { id },
       include: {
         documents: true,
-        owner: true,
+        user: true,
       },
     });
 
@@ -50,36 +53,40 @@ export class FolderService {
 
   async findFolders(params: {
     ownerId: string;
-    search?: string;
     page?: number;
     limit?: number;
+    search?: string;
   }) {
-    const { ownerId, search = '', page = 1, limit = 10 } = params;
+    const { ownerId, page = 1, limit = 10, search } = params;
 
     const where = {
-      ownerId,
-      name: {
-        contains: search,
-      },
+      userId: ownerId,
+      ...(search
+        ? {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        }
+        : {}),
     };
 
-    const folders = await this.prisma.folder.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    const totalCount = await this.prisma.folder.count({ where });
+    const [folders, total] = await this.prisma.$transaction([
+      this.prisma.folder.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.folder.count({ where }),
+    ]);
 
     return {
       data: folders,
-      totalCount,
       page,
       limit,
-      totalPages: Math.ceil(totalCount / limit),
+      total,
+      totalPages: Math.ceil(total / limit),
     };
   }
 }

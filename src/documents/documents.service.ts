@@ -22,7 +22,7 @@ export class DocumentService {
     return this.prisma.document.create({
       data: {
         ...dto,
-        ownerId: dto.userId,
+       userId: dto.userId,
       },
     });
   }
@@ -32,7 +32,7 @@ export class DocumentService {
     const skip = (page - 1) * limit;
 
     const where: Prisma.DocumentWhereInput = {
-      ownerId: query.userId,
+      userId: query.userId,
     };
 
     if (search) {
@@ -72,7 +72,7 @@ export class DocumentService {
       throw new NotFoundException('Document not found');
     }
 
-    if (document.ownerId !== userId) {
+    if (document.userId !== userId) {
       throw new ForbiddenException(
         'You do not have permission to view this document',
       );
@@ -103,7 +103,7 @@ export class DocumentService {
 
   async removeAll(userId: string) {
     const deleted = await this.prisma.document.deleteMany({
-      where: { ownerId: userId },
+      where: { userId: userId },
     });
 
     return {
@@ -135,7 +135,7 @@ export class DocumentService {
   async getTrashed(userId: string) {
     return this.prisma.document.findMany({
       where: {
-        ownerId: userId,
+        userId: userId,
         inTrash: true,
       },
       orderBy: { updatedAt: 'desc' },
@@ -145,7 +145,7 @@ export class DocumentService {
   async emptyTrash(userId: string) {
     const deleted = await this.prisma.document.deleteMany({
       where: {
-        ownerId: userId,
+        userId: userId,
         inTrash: true,
       },
     });

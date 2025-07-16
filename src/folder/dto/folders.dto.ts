@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsInt, Min, IsArray } from 'class-validator';
+import { Document } from 'generated/prisma';
 
 export class CreateFolderDto {
   @ApiProperty({ description: 'Name of the folder' })
@@ -13,6 +14,12 @@ export class CreateFolderDto {
   @IsString()
   @IsNotEmpty()
   ownerId!: string;
+
+  @ApiProperty({
+    description: "Documents for folder"
+  })
+  @IsArray()
+  documents: Document[]
 }
 
 export class UpdateFolderDto {
