@@ -83,7 +83,6 @@ enum ConnectionStatus {
 enum AccessLevel {
   VIEW
   EDIT
-  COMMENT
 }
 
 enum DocumentStatus {
