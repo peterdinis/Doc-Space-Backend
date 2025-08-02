@@ -10,6 +10,7 @@ from io import BytesIO
 from .pagination import DocumentPagination
 from datetime import datetime
 from rest_framework.exceptions import ValidationError
+from .permissions import IsDocumentOwnerOrShared
 
 # ----------- DOCUMENT VIEWS -----------
 
