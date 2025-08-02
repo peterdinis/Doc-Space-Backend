@@ -1,17 +1,21 @@
-from rest_framework import generics, permissions, filters, status
-from .models import Document
-from .serializers import DocumentSerializer
-from rest_framework.response import Response
+from datetime import datetime
+from io import BytesIO
+
+from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.text import slugify
-from markdown import markdown
-from weasyprint import HTML
-from io import BytesIO
-from .pagination import DocumentPagination
-from datetime import datetime
+
+from rest_framework import generics, permissions, filters
+from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
-# ----------- DOCUMENT VIEWS -----------
+from markdown2 import markdown
+from weasyprint import HTML
+
+from .models import Document
+from .serializers import DocumentSerializer
+from .pagination import DocumentPagination
+from .permissions import IsDocumentOwnerOrShared
 
 class DocumentListView(generics.ListAPIView):
     serializer_class = DocumentSerializer
@@ -21,7 +25,13 @@ class DocumentListView(generics.ListAPIView):
     search_fields = ['title']
 
     def get_queryset(self):
-        return Document.objects.filter(owner=self.request.user).order_by('-updated_at')
+        user = self.request.user
+        return Document.objects.filter(
+            Q(owner=user) |
+            Q(can_view=user) |
+            Q(can_edit=user) |
+            Q(is_public=True)
+        ).distinct().order_by('-updated_at')
 
 
 class DocumentCreateView(generics.CreateAPIView):
@@ -34,38 +44,52 @@ class DocumentCreateView(generics.CreateAPIView):
 
 class DocumentRetrieveView(generics.RetrieveAPIView):
     serializer_class = DocumentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDocumentOwnerOrShared]
 
     def get_queryset(self):
-        return Document.objects.filter(owner=self.request.user)
+        user = self.request.user
+        return Document.objects.filter(
+            Q(owner=user) |
+            Q(can_view=user) |
+            Q(can_edit=user) |
+            Q(is_public=True)
+        ).distinct()
 
 
 class DocumentUpdateView(generics.UpdateAPIView):
     serializer_class = DocumentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDocumentOwnerOrShared]
 
     def get_queryset(self):
-        return Document.objects.filter(owner=self.request.user)
+        user = self.request.user
+        # Only owner or can_edit users can update
+        return Document.objects.filter(
+            Q(owner=user) |
+            Q(can_edit=user)
+        ).distinct()
 
 
 class DocumentDeleteView(generics.DestroyAPIView):
     serializer_class = DocumentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDocumentOwnerOrShared]
 
     def get_queryset(self):
+        # Restrict delete only to owner (usually safer)
         return Document.objects.filter(owner=self.request.user)
 
-# ----------- DUPLICATE VIEW -----------
 
 class DocumentDuplicateView(generics.CreateAPIView):
     serializer_class = DocumentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDocumentOwnerOrShared]
 
     def post(self, request, pk):
         try:
-            original = Document.objects.get(pk=pk, owner=request.user)
+            original = Document.objects.get(
+                Q(pk=pk) &
+                (Q(owner=request.user) | Q(can_view=request.user) | Q(can_edit=request.user) | Q(is_public=True))
+            )
         except Document.DoesNotExist:
-            return Response({"detail": "Document not found."}, status=404)
+            return Response({"detail": "Document not found or access denied."}, status=404)
 
         base_title = f"Copy of {original.title}"
         title = base_title
@@ -85,16 +109,24 @@ class DocumentDuplicateView(generics.CreateAPIView):
         return Response(serializer.data, status=201)
 
 
-# ----------- EXPORT VIEW -----------
-
 class DocumentExportView(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDocumentOwnerOrShared]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Document.objects.filter(
+            Q(owner=user) |
+            Q(can_view=user) |
+            Q(can_edit=user) |
+            Q(is_public=True)
+        ).distinct()
 
     def get(self, request, pk):
+        queryset = self.get_queryset()
         try:
-            document = Document.objects.get(pk=pk, owner=request.user)
+            document = queryset.get(pk=pk)
         except Document.DoesNotExist:
-            return Response({"detail": "Document not found."}, status=404)
+            return Response({"detail": "Document not found or access denied."}, status=404)
 
         export_type = request.query_params.get('format', 'txt')  # txt, md, pdf
         filename = slugify(document.title) or "document"
@@ -127,7 +159,8 @@ class DocumentExportView(generics.GenericAPIView):
             response = HttpResponse(content, content_type='text/plain')
             response['Content-Disposition'] = f'attachment; filename="{filename}.txt"'
             return response
-        
+
+
 class DocumentSortedListView(generics.ListAPIView):
     serializer_class = DocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -135,7 +168,12 @@ class DocumentSortedListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Document.objects.filter(owner=user)
+        queryset = Document.objects.filter(
+            Q(owner=user) |
+            Q(can_view=user) |
+            Q(can_edit=user) |
+            Q(is_public=True)
+        ).distinct()
 
         # Handle sorting
         sort_by = self.request.query_params.get('sort_by', 'updated')  # 'created' or 'updated'
