@@ -8,6 +8,8 @@ from markdown import markdown
 from weasyprint import HTML
 from io import BytesIO
 from .pagination import DocumentPagination
+from datetime import datetime
+from rest_framework.exceptions import ValidationError
 
 # ----------- DOCUMENT VIEWS -----------
 
@@ -125,3 +127,47 @@ class DocumentExportView(generics.GenericAPIView):
             response = HttpResponse(content, content_type='text/plain')
             response['Content-Disposition'] = f'attachment; filename="{filename}.txt"'
             return response
+        
+class DocumentSortedListView(generics.ListAPIView):
+    serializer_class = DocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = DocumentPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Document.objects.filter(owner=user)
+
+        # Handle sorting
+        sort_by = self.request.query_params.get('sort_by', 'updated')  # 'created' or 'updated'
+        order = self.request.query_params.get('order', 'desc')         # 'asc' or 'desc'
+
+        if sort_by not in ['created', 'updated']:
+            sort_by = 'updated'
+
+        if order not in ['asc', 'desc']:
+            order = 'desc'
+
+        sort_field = 'created_at' if sort_by == 'created' else 'updated_at'
+        if order == 'desc':
+            sort_field = f'-{sort_field}'
+
+        queryset = queryset.order_by(sort_field)
+
+        # Handle date filters
+        date_fields = {
+            'created_after': 'created_at__gte',
+            'created_before': 'created_at__lte',
+            'updated_after': 'updated_at__gte',
+            'updated_before': 'updated_at__lte',
+        }
+
+        for param, lookup in date_fields.items():
+            date_str = self.request.query_params.get(param)
+            if date_str:
+                try:
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    queryset = queryset.filter(**{lookup: date_obj})
+                except ValueError:
+                    raise ValidationError({param: 'Invalid date format. Use YYYY-MM-DD.'})
+
+        return queryset
