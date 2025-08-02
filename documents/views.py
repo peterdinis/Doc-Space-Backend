@@ -1,4 +1,4 @@
-rom rest_framework import generics, permissions, filters
+from rest_framework import generics, permissions, filters
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
 from .models import Document
