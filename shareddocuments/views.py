@@ -5,7 +5,6 @@ from .models import SharedDocument, SharedDocumentHistory
 from .serializers import SharedDocumentSerializer
 from documents.models import Document
 
-
 class SharedDocumentListView(generics.ListAPIView):
     serializer_class = SharedDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]

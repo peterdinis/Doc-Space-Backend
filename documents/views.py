@@ -1,17 +1,14 @@
 from datetime import datetime
 from io import BytesIO
-
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.text import slugify
-
 from rest_framework import generics, permissions, filters
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-
+from rest_framework.views import APIView
 from markdown2 import markdown
 from weasyprint import HTML
-
 from .models import Document
 from .serializers import DocumentSerializer
 from .pagination import DocumentPagination
@@ -62,7 +59,6 @@ class DocumentUpdateView(generics.UpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        # Only owner or can_edit users can update
         return Document.objects.filter(
             Q(owner=user) |
             Q(can_edit=user)
@@ -74,7 +70,6 @@ class DocumentDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated, IsDocumentOwnerOrShared]
 
     def get_queryset(self):
-        # Restrict delete only to owner (usually safer)
         return Document.objects.filter(owner=self.request.user)
 
 
@@ -209,3 +204,19 @@ class DocumentSortedListView(generics.ListAPIView):
                     raise ValidationError({param: 'Invalid date format. Use YYYY-MM-DD.'})
 
         return queryset
+
+
+# ✅ New view to get all documents where the user is involved in any way
+class DocumentRelatedToUserView(generics.ListAPIView):
+    serializer_class = DocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = DocumentPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        return Document.objects.filter(
+            Q(owner=user) |
+            Q(can_view=user) |
+            Q(can_edit=user) |
+            Q(can_delete=user)
+        ).distinct().order_by('-updated_at')
