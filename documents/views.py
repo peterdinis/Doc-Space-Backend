@@ -1,18 +1,14 @@
 from datetime import datetime
 from io import BytesIO
-
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.text import slugify
-
 from rest_framework import generics, permissions, filters
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
-
 from markdown2 import markdown
 from weasyprint import HTML
-
 from .models import Document
 from .serializers import DocumentSerializer
 from .pagination import DocumentPagination
