@@ -8,7 +8,8 @@ from .views import (
     DocumentDuplicateView,
     DocumentExportView,
     DocumentSortedListView,
-    DocumentRelatedToUserView
+    DocumentSortPositionUpdateView,
+    DocumentRelatedToUserView,
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     path('<int:pk>/delete/', DocumentDeleteView.as_view(), name='document-delete'),
     path('sorted/', DocumentSortedListView.as_view(), name='document-sorted'),
     path("documents/related/", DocumentRelatedToUserView.as_view(), name="documents-related-to-user"),
+    path('documents/<int:pk>/update-sort/', DocumentSortPositionUpdateView.as_view(), name='document-update-sort'),
 ]

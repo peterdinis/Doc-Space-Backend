@@ -12,6 +12,10 @@ from .models import Document
 from .serializers import DocumentSerializer
 from .pagination import DocumentPagination
 from .permissions import IsDocumentOwnerOrShared
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from rest_framework.response import Response
 
 class DocumentListView(generics.ListAPIView):
     serializer_class = DocumentSerializer
@@ -204,8 +208,6 @@ class DocumentSortedListView(generics.ListAPIView):
 
         return queryset
 
-
-# ✅ New view to get all documents where the user is involved in any way
 class DocumentRelatedToUserView(generics.ListAPIView):
     serializer_class = DocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -213,9 +215,58 @@ class DocumentRelatedToUserView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Document.objects.filter(
+        queryset = Document.objects.filter(
             Q(owner=user) |
             Q(can_view=user) |
             Q(can_edit=user) |
             Q(can_delete=user)
-        ).distinct().order_by('-updated_at')
+        ).distinct()
+
+        # Optional sorting
+        queryset = queryset.order_by('-updated_at')
+
+        # ✅ Filtering by sort_position
+        sort_eq = self.request.query_params.get('sort_position')
+        sort_gte = self.request.query_params.get('sort_position_gte')
+        sort_lte = self.request.query_params.get('sort_position_lte')
+
+        if sort_eq is not None:
+            queryset = queryset.filter(sort_position=int(sort_eq))
+        if sort_gte is not None:
+            queryset = queryset.filter(sort_position__gte=int(sort_gte))
+        if sort_lte is not None:
+            queryset = queryset.filter(sort_position__lte=int(sort_lte))
+
+        return queryset
+    
+class DocumentSortPositionUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        user = request.user
+        new_position = request.data.get('sort_position')
+
+        if new_position is None:
+            return Response({'detail': 'Missing sort_position'}, status=HTTP_400_BAD_REQUEST)
+
+        try:
+            new_position = int(new_position)
+        except ValueError:
+            return Response({'detail': 'sort_position must be an integer'}, status=HTTP_400_BAD_REQUEST)
+
+        try:
+            document = Document.objects.get(pk=pk)
+        except Document.DoesNotExist:
+            return Response({'detail': 'Document not found'}, status=HTTP_404_NOT_FOUND)
+
+        # Check permission (owner or can_edit)
+        if not (
+            document.owner == user or
+            document.can_edit.filter(pk=user.pk).exists()
+        ):
+            return Response({'detail': 'Permission denied'}, status=HTTP_403_FORBIDDEN)
+
+        document.sort_position = new_position
+        document.save()
+
+        return Response({'detail': 'Sort position updated', 'sort_position': document.sort_position})
