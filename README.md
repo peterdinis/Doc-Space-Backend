@@ -13,8 +13,7 @@ A backend application built using **Django REST Framework** to support a real-ti
 - ✅ Email notifications when documents are shared
 - ✅ Shared document audit log with history tracking
 - ✅ Filtering shared documents by permission or document
-- ✅ API documentation using Swagger/OpenAPI (via `drf-yasg`)
-- ✅ PostgreSQL and Redis integration for storage and caching
+- ✅ API documentation using Swagger/OpenAPI (via `drf_spectacular`)
 
 ---
 
