@@ -6,7 +6,6 @@ from django.utils.text import slugify
 from rest_framework import generics, permissions, filters
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from rest_framework.views import APIView
 from markdown2 import markdown
 from weasyprint import HTML
 from .models import Document
