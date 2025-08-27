@@ -1,13 +1,20 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace backend.DTOs.Documents
 {
     public class DocumentContentDto
     {
-        [MaxLength(10000)]
-        public string Text { get; set; } = string.Empty;
+        [Required]
+        public List<ContentBlockDto> Blocks { get; set; } = new();
+    }
 
-        public List<string> Images { get; set; } = new();
-        public List<string> Videos { get; set; } = new();
+    public class ContentBlockDto
+    {
+        [Required]
+        public string Type { get; set; } = "text";
+
+        [Required]
+        public JsonElement Data { get; set; }
     }
 }
