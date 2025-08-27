@@ -1,9 +1,11 @@
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
+using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<DocumentService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=googledocs.db"));
 builder.Services.AddEndpointsApiExplorer();
