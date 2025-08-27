@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace backend.DTOs.Documents
 {
     public class DocumentUpdateDto

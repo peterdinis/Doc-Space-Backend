@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-
 namespace backend.DTOs.Documents
 {
     public class DocumentQueryDto
