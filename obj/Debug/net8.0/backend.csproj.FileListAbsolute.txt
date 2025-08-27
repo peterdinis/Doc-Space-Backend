@@ -5,6 +5,7 @@
 /home/peterdinis/Desktop/Work/doc-space/backend/obj/Debug/net8.0/backend.csproj.CoreCompileInputs.cache
 /home/peterdinis/Desktop/Work/doc-space/backend/obj/Debug/net8.0/backend.MvcApplicationPartsAssemblyInfo.cs
 /home/peterdinis/Desktop/Work/doc-space/backend/obj/Debug/net8.0/backend.MvcApplicationPartsAssemblyInfo.cache
+/home/peterdinis/Desktop/Work/doc-space/backend/obj/Debug/net8.0/backend.sourcelink.json
 /home/peterdinis/Desktop/Work/doc-space/backend/bin/Debug/net8.0/appsettings.Development.json
 /home/peterdinis/Desktop/Work/doc-space/backend/bin/Debug/net8.0/appsettings.json
 /home/peterdinis/Desktop/Work/doc-space/backend/bin/Debug/net8.0/backend
