@@ -6,10 +6,9 @@ using System.Text.Json;
 
 namespace backend.Services
 {
-    public class DocumentService
+    public class DocumentService(AppDbContext context)
     {
-        private readonly AppDbContext _context;
-        public DocumentService(AppDbContext context) => _context = context;
+        private readonly AppDbContext _context = context;
 
         public async Task<Document> CreateAsync(DocumentCreateDto dto)
         {
@@ -34,7 +33,16 @@ namespace backend.Services
                 doc.Title = dto.Title;
 
             if (dto.Content != null)
-                doc.Content = JsonSerializer.Serialize(dto.Content);
+            {
+                doc.SetContent(new DocumentContent
+                {
+                    Blocks = [.. dto.Content.Blocks.Select(b => new ContentBlock
+                    {
+                        Type = b.Type,
+                        Data = b.Data
+                    })]
+                });
+            }
 
             doc.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
