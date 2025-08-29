@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "IlKldDJdAYzDYrKDaN/IucmDgX/MA+DqK4G5Ej9P5Aeke6RcxH3zU981Y/oUxe6xYQt9pBTIhvcIkCOq3NDUQg==",
+  "dgSpecHash": "4aeOZ61yK0hm0Gs21/gqHQmrfjOuvNlhIS+ZXWsreGUWSiN3B43aOQJs7NYSUnsHWdsmwYGwkwcs/oN8BVcGTA==",
   "success": true,
   "projectFilePath": "/home/peterdinis/Desktop/Work/doc-space/backend/backend.csproj",
   "expectedPackageFiles": [
+    "/home/peterdinis/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/peterdinis/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/peterdinis/.nuget/packages/microsoft.aspnetcore.authentication/2.3.0/microsoft.aspnetcore.authentication.2.3.0.nupkg.sha512",
     "/home/peterdinis/.nuget/packages/microsoft.aspnetcore.authentication.abstractions/2.3.0/microsoft.aspnetcore.authentication.abstractions.2.3.0.nupkg.sha512",
