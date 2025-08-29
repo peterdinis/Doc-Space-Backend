@@ -3,6 +3,8 @@ using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Read JWT settings from appsettings.json
