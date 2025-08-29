@@ -1,18 +1,22 @@
 using System.ComponentModel.DataAnnotations;
 
-public class User
+namespace backend.Models
 {
-    [Key]
-    public int Id { get; set; }
+    public class User
+    {
+        [Key]
+        public int Id { get; set; }
 
-    [Required]
-    [MaxLength(50)]
-    public required string Username { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public required string Username { get; set; }
 
-    [Required]
-    [MaxLength(100)]
-    public required string Email { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public required string Email { get; set; }
 
-    [Required]
-    public required string PasswordHash { get; set; }
+        [Required]
+        public required string PasswordHash { get; set; }
+    }
+
 }
