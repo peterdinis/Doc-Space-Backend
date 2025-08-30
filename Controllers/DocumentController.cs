@@ -7,14 +7,9 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DocumentsController : ControllerBase
+    public class DocumentsController(DocumentService documentService) : ControllerBase
     {
-        private readonly DocumentService _documentService;
-
-        public DocumentsController(DocumentService documentService)
-        {
-            _documentService = documentService;
-        }
+        private readonly DocumentService _documentService = documentService;
 
         // GET: api/documents
         [HttpGet]

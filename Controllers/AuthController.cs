@@ -12,16 +12,10 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(AuthService authService, IConfiguration config) : ControllerBase
     {
-        private readonly AuthService _authService;
-        private readonly IConfiguration _config;
-
-        public AuthController(AuthService authService, IConfiguration config)
-        {
-            _authService = authService;
-            _config = config;
-        }
+        private readonly AuthService _authService = authService;
+        private readonly IConfiguration _config = config;
 
         // POST: api/auth/register
         [HttpPost("register")]
@@ -78,18 +72,7 @@ namespace backend.Controllers
                 user.Email
             });
         }
-
-        // POST: api/auth/logout
-        [Authorize]
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            // JWTs are stateless: logout is client-side by discarding the token
-            return Ok(new { message = "Logged out successfully." });
-        }
-
-        // Helper method to create JWT
-        private string GenerateJwtToken(User user)
+                private string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
