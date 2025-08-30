@@ -3,6 +3,8 @@ using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using backend.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Read JWT settings from appsettings.json
@@ -33,6 +35,9 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
+
+builder.Services.AddScoped<DocumentService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
